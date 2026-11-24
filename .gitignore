@@ -6,6 +6,7 @@
 !/KBTC_desktop/
 !/백테스트/
 !/로고/
+!/docs/
 
 # 비밀·실행 기록은 절대 올리지 않는다
 config.env

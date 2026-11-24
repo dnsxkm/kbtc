@@ -1,5 +1,12 @@
 # KBTC · KOREA BITCOIN 퀀트 트레이딩
 
+<p align="center"><img src="docs/images/logo_wordmark.png" height="54"></p>
+
+<p align="center">
+<img src="docs/images/app_home.png" width="23%"> <img src="docs/images/app_trade.png" width="23%">
+<img src="docs/images/app_tpsl.png" width="23%"> <img src="docs/images/app_card.png" width="23%">
+</p>
+
 BTC 무기한 선물을 **Lv.1 50일선 추세** 전략으로 하루 한 번(09:00 KST 일봉 마감 직후) 자동 매매합니다.
 확정 종가가 50일 평균보다 위면 롱, 아래면 숏. 신호가 바뀔 때만 전량 청산 후 반대로 진입합니다.
 
@@ -35,6 +42,8 @@ railway init && railway up
 
 로컬 실행: `config.env.example`을 `config.env`로 복사해 값을 채우고 `python3 main.py`.
 
+![desktop](docs/images/desktop.png)
+
 ## 백테스트 요약 (BTC · 비중 30%, 2020-01 ~ 2026-11, 수수료·펀딩·청산 반영)
 
 | 배율 | 최종(5,000 USDT 시작) | 연평균 | 최대 낙폭 |
@@ -45,6 +54,8 @@ railway init && railway up
 | 20배 | 9,642 | +10.0% | -99.97% |
 
 추천: 비중 30%면 배율 3~5배.
+
+![backtest](docs/images/bt_btc_leverage.png)
 
 ## 바이낸스 Demo API 키 만들기
 
