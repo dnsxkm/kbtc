@@ -1,0 +1,22 @@
+# 이 저장소에는 KBTC 코드만 올린다 (화이트리스트)
+/*
+!/.gitignore
+!/README.md
+!/KBTC_server/
+!/KBTC_desktop/
+!/백테스트/
+!/로고/
+
+# 비밀·실행 기록은 절대 올리지 않는다
+config.env
+*.env
+!config.env.example
+state.json
+state.json.tmp
+server_secret
+users/
+APIs/
+__pycache__/
+*.pyc
+.DS_Store
+설치가이드.md

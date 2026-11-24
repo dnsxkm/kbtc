@@ -1,0 +1,6 @@
+config.env
+state.json
+state.json.tmp
+__pycache__/
+kbtc.service
+설치가이드.md

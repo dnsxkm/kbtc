@@ -1,0 +1,41 @@
+KOREA BITCOIN - 바이낸스 BTCUSDT 무기한 선물 대시보드
+
+[필요한 것]
+- Mac 또는 Windows 10/11
+- Python 3.11 이상 (설치할 때 "Add Python to PATH" 선택)
+- 바이낸스 선물 계정
+
+[실행]
+1. 압축을 전부 풉니다.
+2. Mac: "KBTC 실행 (Mac).command" / Windows: "KBTC 실행 (Windows).cmd" 를 더블클릭합니다.
+3. 처음에는 계좌 환경을 Demo로 선택해 확인합니다.
+
+[바이낸스 실계좌 연결]
+1. 바이낸스 API Management에서 System-generated (HMAC) 키를 만듭니다.
+2. Reading 및 Futures 권한만 켭니다. 출금 권한은 켜지 않습니다.
+3. 가능하면 실행 PC의 공인 IP만 허용합니다.
+4. 바이낸스 선물 계정은 단방향(One-way) 포지션 모드로 설정합니다.
+5. 앱에서 Live를 선택하고 API Key와 Secret을 입력합니다.
+6. "계좌 연결 · 조회"를 눌러 잔액과 포지션을 확인합니다.
+
+[자동매매]
+- 전략과 진입 비중(%)을 입력한 뒤 "퀀트 트레이딩 시작"을 누릅니다.
+- 진입 시 사용 가능 USDT x 비중% 를 증거금으로, 바이낸스에 설정된 배율을 곱한 만큼 진입합니다.
+  (예: 1,000 USDT, 30%, 5배 -> 명목 1,500 USDT)
+- 전략은 Lv.1(종가가 50일 평균보다 위면 롱, 아래면 숏) 하나만 사용합니다.
+- 한국시간 오전 9시 일봉 마감 직후 신호를 처리합니다.
+- 앱과 PC가 켜져 있어야 작동합니다.
+- 기존 BTCUSDT 포지션도 전략 방향에 따라 전량 청산될 수 있습니다.
+- "중지"는 새 주문을 멈추며 이미 열린 포지션은 유지합니다.
+
+[보안]
+- API Key와 Secret은 이 앱의 파일에 저장되지 않습니다.
+- 키를 채팅, 메신저, 이메일로 보내지 마세요.
+- API Secret을 잃어버리면 바이낸스에서 새 API 키를 발급해야 합니다.
+
+[구성]
+- futures_app.py: 자동매매 및 바이낸스 선물 연결
+- quant_floor/binance.py: 바이낸스 REST 통신
+- quant_floor/floor_view.py: 픽셀 트레이딩룸 UI
+- quant_floor/assets/logo.png: 로고 (make_logo.py 로 다시 만들 수 있음, Pillow 필요)
+- quant_floor/notify.py: 선택적 텔레그램 알림

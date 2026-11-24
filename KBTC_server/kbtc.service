@@ -1,0 +1,15 @@
+[Unit]
+Description=KBTC Lv.1 50MA trend bot (Binance USDT-M futures)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/KBTC_server
+ExecStart=/usr/bin/python3 /home/ubuntu/KBTC_server/kbtc_bot.py
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

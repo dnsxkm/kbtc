@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="KBTC">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.png">
+<link rel="icon" type="image/png" href="/icon.png">
+<title>KBTC</title>
+<style>
+  :root{--bg:#0b0c0f;--panel:#16181d;--card:#111317;--line:#24272e;--ink:#ede8df;--muted:#9ea2aa;
+        --mint:#88e6c4;--gold:#ffc56b;--up:#3ecf7a;--down:#ff5f7e;--green:#25a750;--red:#d6455d}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);font:13.5px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+       padding:max(12px,env(safe-area-inset-top)) 14px calc(24px + env(safe-area-inset-bottom))}
+  .wrap{max-width:560px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  header img{height:30px;max-width:62vw;object-fit:contain;object-position:left}
+  .badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:99px;background:#2a2d34;color:var(--muted);letter-spacing:.04em}
+  .price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:2px 0 12px}
+  .price b{font-size:26px;font-variant-numeric:tabular-nums}
+  .muted{color:var(--muted)} .up{color:var(--up)} .down{color:var(--down)} .gold{color:var(--gold)}
+  .card{background:var(--panel);border-radius:14px;padding:14px;margin-bottom:12px}
+  .card h3{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:700;letter-spacing:.03em}
+  .brief{background:#0c1311;border:3px solid #2a2c33;border-radius:12px;padding:12px 14px;min-height:118px}
+  .brief .top{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px}
+  .brief .title{font-size:15px;font-weight:800;margin-bottom:4px}
+  .brief .body{white-space:pre-line;font-size:12.5px}
+  .brief.teto .body{font-weight:700;color:#fff}
+  .brief.egen .body{color:#f3e6d8}
+  .cursor{display:inline-block;width:.55em;background:currentColor;animation:blink 1s steps(1) infinite;height:1em;vertical-align:-2px}
+  @keyframes blink{50%{opacity:0}}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px}
+  .grid3 small{display:block;color:var(--muted);font-size:11px;font-weight:700}
+  .grid3 span{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+  .chips{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  .chip{font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;background:#2a2d34}
+  .chip.long{background:var(--up);color:#0b0c0f} .chip.short{background:var(--down);color:#0b0c0f}
+  .pnl{margin-left:auto;font-weight:800;font-size:16px;font-variant-numeric:tabular-nums}
+  .mkts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mkt{background:#0c1311;border:3px solid #2a2c33;border-radius:12px;padding:10px}
+  .mkt.wide{grid-column:1/-1}
+  .mkt .h{display:flex;justify-content:space-between;font-size:11px;font-weight:800;color:var(--muted)}
+  .mkt .v{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0}
+  svg{display:block;width:100%;height:46px}
+  .mkt.wide svg{height:70px}
+  .slider{position:relative;height:44px;margin:6px 4px 0;touch-action:none}
+  .slider .track{position:absolute;left:0;right:0;top:12px;height:4px;border-radius:2px;background:#33363d}
+  .slider .fill{position:absolute;left:0;top:12px;height:4px;border-radius:2px;background:var(--mint)}
+  .slider .dot{position:absolute;top:9px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#33363d;border:2px solid var(--panel)}
+  .slider .dot.on{background:var(--mint)}
+  .slider .lbl{position:absolute;top:26px;font-size:11px;color:var(--muted);transform:translateX(-50%)}
+  .slider .knob{position:absolute;top:4px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--ink);border:3px solid var(--mint)}
+  .field{display:flex;align-items:center;gap:8px;margin:12px 0}
+  .field label{flex:1;color:var(--muted);font-weight:700;font-size:13px}
+  input[type=number],input[type=password]{background:#24272e;border:0;border-radius:10px;color:var(--ink);font:inherit;font-weight:700;padding:10px 12px;width:90px;text-align:center}
+  input[type=password]{width:100%;text-align:left}
+  .step{width:38px;height:38px;border-radius:10px;border:0;background:#2a2c31;color:var(--ink);font-size:20px;font-weight:700}
+  .seg{display:flex;background:#24272e;border-radius:10px;padding:3px}
+  .seg button{border:0;background:none;color:var(--muted);font:inherit;font-weight:800;padding:7px 16px;border-radius:8px}
+  .seg button.on{background:#3a3d44;color:var(--ink)}
+  .pill{display:block;width:100%;border:0;border-radius:99px;padding:13px;font:inherit;font-weight:800;color:#fff;margin-top:8px}
+  .pill.dark{background:#2a2c31} .pill.green{background:var(--green)} .pill.red{background:var(--red)}
+  .pill:active{filter:brightness(1.15)}
+  .log{font-size:13px;max-height:260px;overflow:auto}
+  .log div{padding:6px 0;border-bottom:1px solid var(--line);white-space:pre-line}
+  .log time{color:var(--muted);font-size:11px;display:block}
+  .foot{text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+  #login{display:none;max-width:360px;margin:18vh auto 0;text-align:center}
+  #login img{max-width:80%;margin-bottom:22px}
+  .hbtns{display:flex;gap:6px;align-items:center}
+  .apibtn{border:0;background:#2a2c31;color:var(--ink);font:inherit;font-weight:800;font-size:12px;padding:6px 12px;border-radius:99px}
+  .q{border:0;width:28px;height:28px;border-radius:50%;background:#2a2c31;color:var(--gold);font:inherit;font-weight:900}
+  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .sheet.open{display:flex}
+  .sheet .box{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
+              padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
+  .sheet h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px}
+  .sheet .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:22px}
+  .in{width:100%;background:#24272e;border:0;border-radius:10px;color:var(--ink);font:inherit;padding:12px;margin:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+  .steps{counter-reset:s;padding:0;margin:10px 0;list-style:none}
+  .steps li{counter-increment:s;position:relative;padding:8px 0 8px 34px;border-bottom:1px solid var(--line);font-size:14px}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:#2a2c31;
+                    color:var(--gold);font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .steps b{color:var(--gold)}
+  .note{background:#1e2026;border-radius:10px;padding:10px 12px;font-size:13px;color:var(--muted);margin-top:8px}
+  .linkbtn{display:block;text-align:center;color:var(--gold);font-weight:800;text-decoration:none;padding:12px;border-radius:99px;background:#2a2c31;margin-top:8px}
+  .bt{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  .bt th{color:var(--muted);font-size:11px;font-weight:700;text-align:right;padding:4px 3px}
+  .bt td{text-align:right;padding:7px 3px;font-weight:700;border-top:1px solid var(--line)}
+  .bt th:first-child,.bt td:first-child{text-align:left}
+  .bt tr.cur td{background:#23262d}
+  .vd{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:5px;color:#0b0c0f;white-space:nowrap}
+  .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ph .pt{font-size:16px;font-weight:800}
+  .ph .pr{display:flex;align-items:center;gap:8px;font-size:12.5px}
+  .icon{border:0;background:none;color:var(--ink);font-size:18px;padding:0 2px}
+  .ph2{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:6px}
+  .oc{font-size:13px;font-weight:700;padding:3px 9px;border-radius:6px;background:#2a2d34;color:var(--ink);border:0;font-family:inherit}
+  .oc.long{background:rgba(62,207,122,.16);color:var(--up)} .oc.short{background:rgba(255,95,126,.16);color:var(--down)}
+  .bars{display:inline-flex;gap:2px;margin-left:2px;vertical-align:middle} .bars i{width:3px;height:12px;border-radius:1px;background:#3a3d44}
+  .ph2 .pnl{font-size:15.5px;margin-left:0;text-align:right;white-space:nowrap}
+  .og{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:12px 6px}
+  .og div:nth-child(3n){text-align:right}
+  .og small{display:block;color:var(--muted);font-size:11px;font-weight:600;margin-bottom:2px}
+  .og span{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .rp{margin-top:12px;font-size:13px;color:var(--muted)} .rp b{margin-left:6px;font-variant-numeric:tabular-nums}
+  .btn3{display:flex;gap:8px;margin-top:14px} .btn3 .pill{flex:1;margin-top:0;padding:8px 4px;background:#26282e;font-size:13.5px;font-weight:600;border-radius:99px}
+  body{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .tab{display:none} .tab.on{display:block}
+  .tv{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 14px}
+  .tvl{font-size:13px} .tvn b{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums} .tvn span{font-size:13px;font-weight:700}
+  .tvp{font-size:13px;color:var(--muted);margin-top:2px} .tvp span{font-weight:700}
+  svg.spark{width:120px;height:50px}
+  .cta{display:flex;gap:10px;margin-bottom:14px} .lime{flex:1;border:0;border-radius:99px;padding:10px;font:inherit;font-weight:800;font-size:13.5px;background:var(--mint);color:#0b0c0f}
+  .mrow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+  .mrow:last-child{border-bottom:0}
+  .coin{width:32px;height:32px;flex:none} .coin svg{width:32px;height:32px;display:block}
+  .bwrap{display:flex;gap:12px;align-items:flex-start}
+  .pixbox{flex:none;width:62px;height:70px;border-radius:9px;background:linear-gradient(#2b2a3d,#1a1b26);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+  #pix{width:56px;height:63px;animation:bob 2.6s ease-in-out infinite}
+  #pix .shades{display:none} #pix[data-p="테토"] .shades{display:inline} #pix[data-p="테토"] .blush{display:none}
+  #pix .mouth,#pix .eye{transform-box:fill-box;transform-origin:center}
+  #pix.talk .mouth{animation:talk .22s steps(1) infinite} #pix .eye{animation:blink 4.2s infinite}
+  @keyframes talk{50%{transform:scaleY(2.2)}} @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+  @keyframes bob{50%{transform:translateY(1.5px)}}
+  .an{position:fixed;inset:0;background:var(--bg);z-index:8;overflow-y:auto;display:none;padding:max(10px,env(safe-area-inset-top)) 14px 40px}
+  .an.on{display:block} .an .wrap2{max-width:560px;margin:0 auto}
+  .anh{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px} .anh b{font-size:17px}
+  .anh .icon{font-size:26px;width:32px}
+  .chips2{display:flex;gap:6px;margin:4px 0 12px} .chips2 button{border:0;background:none;color:var(--muted);font:inherit;font-weight:700;padding:6px 14px;border-radius:99px}
+  .chips2 button.on{background:#24272e;color:var(--ink)}
+  .seg2{display:inline-flex;gap:4px} .seg2 button{border:0;background:none;color:var(--muted);font:inherit;font-weight:700;padding:6px 12px;border-radius:99px;font-size:13px}
+  .seg2 button.on{background:#24272e;color:var(--ink)} .seg2.sm{background:#1b1d22;border-radius:99px;padding:3px} .seg2.sm button{padding:5px 10px}
+  .ct{font-size:16px;color:var(--ink);margin:0} .ctr{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .big{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0 6px}
+  svg.ch{width:100%;height:auto;display:block}
+  .mnav{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-weight:700;font-size:13px}
+  .mnav button{border:0;background:none;color:var(--ink);font-size:16px;padding:0 4px}
+  .cal2{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+  .cal2 .dw{text-align:center;font-size:10.5px;color:var(--muted);font-weight:600;padding-bottom:4px}
+  .cd{background:#1b1d22;border-radius:7px;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  .cd b{font-size:14px;font-weight:600} .cd small{font-size:9.5px;font-variant-numeric:tabular-nums}
+  .cd.p{background:rgba(62,207,122,.14)} .cd.m{background:rgba(255,95,126,.14)} .cd.today{outline:1.5px solid var(--ink)} .cd.fut{background:none;color:var(--muted)}
+  .anentry{cursor:pointer}
+  .og2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px} .og2 small{display:block;color:var(--muted);font-size:12px} .og2 b{font-size:14px;font-variant-numeric:tabular-nums}
+  .tsh{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px} .tsh b{font-size:15px} .tsh span{font-size:12px}
+  .ip2{display:flex;gap:8px}
+  .ipx{display:flex;align-items:center;background:#24272e;border-radius:10px;padding:0 12px;flex:1.6;min-width:0} .ipx.sm{flex:1}
+  .ipx input{flex:1;min-width:0;width:100%;background:none;border:0;color:var(--ink);font:inherit;font-size:16px;padding:11px 0;outline:none;text-align:left}
+  input,select,textarea{font-size:16px !important}  /* iOS 는 16px 미만 입력칸을 누르면 화면을 확대한다 */
+  .sheet .box{overflow-x:hidden;box-sizing:border-box}
+  .ip2{min-width:0}
+  .ipx span{color:var(--muted);font-size:13px;margin-left:6px}
+  .tslide{position:relative;height:36px;margin:8px 8px 0;touch-action:none;cursor:pointer}
+  .tslide .tr{position:absolute;left:0;right:0;top:9px;height:3px;background:#33363d;border-radius:2px}
+  .tslide .fl{position:absolute;left:0;top:9px;height:3px;background:var(--ink);border-radius:2px}
+  .tslide .dt{position:absolute;top:6px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;background:#33363d;border:2px solid var(--panel)}
+  .tslide .dt.on{background:var(--ink)}
+  .tslide .lb{position:absolute;top:20px;font-size:10.5px;color:var(--muted);transform:translateX(-50%)}
+  .tslide .tip{position:absolute;bottom:34px;transform:translateX(-50%);background:var(--ink);color:#0b0c0f;font-size:11.5px;font-weight:800;
+               padding:3px 7px;border-radius:6px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
+  .tslide .tip::after{content:"";position:absolute;left:50%;bottom:-4px;margin-left:-4px;border:4px solid transparent;border-bottom:0;border-top-color:var(--ink)}
+  .tslide.drag .tip{opacity:1}
+  .tslide .kn{position:absolute;top:2px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--panel);border:2.5px solid var(--ink)}
+  .coin.btc{background:#f7931a} .coin.eth{background:#6b6f78} .coin.ndx{background:#2a2c31;color:var(--gold)}
+  .mn{flex:1;min-width:0} .mn b{font-size:13.5px} .mn small{display:block;color:var(--muted);font-size:11.5px}
+  .perp{font-size:10.5px;font-weight:700;color:var(--gold);background:rgba(255,197,107,.12);padding:1px 5px;border-radius:4px}
+  .mp{text-align:right} .mp b{font-variant-numeric:tabular-nums} .mp small{display:block;color:var(--muted);font-size:11px}
+  .chg{min-width:74px;text-align:center;padding:7px 4px;border-radius:7px;font-weight:800;font-size:13px;background:#2a2c31}
+  .chg.up{background:#25a750;color:#fff} .chg.down{background:#d6455d;color:#fff}
+  .sym{display:flex;justify-content:space-between;align-items:flex-start;margin:4px 0 14px}
+  .sym b{font-size:16px} .symp span{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums} .symp small{font-weight:700}
+  .symr{text-align:right;display:flex;flex-direction:column;gap:2px} .symr b{font-size:14px}
+  .ttabs{display:flex;gap:18px;border-bottom:1px solid var(--line);margin:4px 2px 12px}
+  .ttabs button{border:0;background:none;color:var(--muted);font:inherit;font-weight:700;font-size:13.5px;padding:8px 0;border-bottom:2px solid transparent}
+  .ttabs button.on{color:var(--ink);border-bottom-color:var(--ink)}
+  .qa{display:flex;justify-content:space-between;margin:4px 0 16px}
+  .qa button{border:0;background:none;color:var(--ink);font:inherit;font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px;width:24%}
+  .qa i{font-style:normal;width:50px;height:50px;border-radius:50%;background:var(--mint);color:#0b0c0f;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900}
+  h3.sec{font-size:16px;margin:4px 0 10px;color:var(--ink)}
+  .pf{display:flex;gap:10px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none} .pf::-webkit-scrollbar{display:none}
+  .pfc{flex:none;width:44%;background:var(--panel);border-radius:14px;padding:14px} .pfc small{display:block;color:var(--muted);font-size:12.5px;margin-bottom:10px} .pfc b{font-size:15px;font-variant-numeric:tabular-nums}
+  .bnav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:flex-end;background:rgba(11,12,15,.96);
+        border-top:1px solid var(--line);padding:6px 0 calc(8px + env(safe-area-inset-bottom));z-index:5;backdrop-filter:blur(8px)}
+  .bnav button{border:0;background:none;color:var(--muted);font:inherit;font-size:11.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;width:90px}
+  .bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .bnav button.on{color:var(--ink)} .bnav button.on svg{stroke:var(--mint)}
+  .bnav .mid span{width:56px;height:56px;border-radius:50%;background:var(--ink);color:#0b0c0f;display:flex;align-items:center;justify-content:center;margin-top:-26px;box-shadow:0 0 0 5px var(--bg)}
+  .bnav .mid span svg{stroke:#0b0c0f}
+  .qk{display:flex;gap:6px;margin:6px 0 2px} .qk button{flex:1;border:0;background:#24272e;color:var(--ink);font:inherit;font-size:12px;font-weight:700;padding:7px 0;border-radius:8px}
+  .qk button.on{background:#3a3d44;outline:1px solid var(--gold)}
+  .lbl{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--muted);margin-top:12px}
+  input[type=number].in{width:100%;text-align:left;margin:6px 0}
+  input[type=checkbox]{accent-color:#3ecf7a;width:16px;height:16px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:12px;color:var(--ink)}
+  .btnrow{display:flex;gap:8px}
+  .btnrow .pill{flex:1}
+  .tabs{display:flex;background:#24272e;border-radius:10px;padding:3px;margin-bottom:10px}
+  .tabs button{flex:1;border:0;background:none;color:var(--muted);font:inherit;font-weight:800;font-size:13px;padding:8px 4px;border-radius:8px}
+  .tabs button.on{background:#3a3d44;color:var(--ink)}
+  .hl{font-size:13px}
+  .hl .it{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .hl .it small{display:block;color:var(--muted);font-size:11px;font-weight:600}
+  .hl .it b{font-variant-numeric:tabular-nums}
+  .cam{border:0;background:#2a2c31;color:var(--ink);border-radius:8px;padding:6px 8px;font-size:14px}
+  .calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .calh button{border:0;background:#2a2c31;color:var(--ink);width:34px;height:30px;border-radius:8px;font-size:16px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .dow{text-align:center;font-size:10.5px;color:var(--muted);font-weight:700}
+  .cal .d{background:#1b1d22;border-radius:7px;min-height:46px;padding:4px 3px;font-size:10px;text-align:right;font-variant-numeric:tabular-nums}
+  .cal .d .n{color:var(--muted);font-weight:700;text-align:left}
+  .cal .d.p{background:rgba(62,207,122,.14)} .cal .d.m{background:rgba(255,95,126,.14)}
+  .cal .d.today{outline:1.5px solid var(--gold)}
+  .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2a2c31;color:var(--ink);
+         padding:10px 16px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="login">
+  <img src="/logo.png" alt="KOREA BITCOIN">
+  <h3 style="margin:0 0 6px">바이낸스 Demo API 연결</h3>
+  <p class="muted" style="margin:0 0 10px;font-size:13px">내 데모 계좌로 KBTC 퀀트 트레이딩을 시작해요</p>
+  <input class="in" id="k" placeholder="API Key" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <input class="in" id="s" type="password" placeholder="Secret Key" autocomplete="off">
+  <button class="pill green" id="connectBtn">연결하기</button>
+  <button class="pill dark" data-help>? API 키 만드는 법</button>
+  <p id="loginErr" style="color:var(--down);font-size:13px"></p>
+  <p class="muted" style="font-size:12px">키는 서버에 암호화되어 저장되고, Demo(모의) 계좌에서만 동작해요.</p>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header><img src="/logo.png" alt="KOREA BITCOIN"><div class="hbtns"><span class="badge" id="mode">DEMO</span><button class="apibtn" id="apiBtn">API</button></div></header>
+
+<!-- ═════════ KBTC (홈) ═════════ -->
+<section class="tab" id="tab-kbtc">
+  <div class="tv"><div><div class="muted tvl">Est total value</div>
+      <div class="tvn"><b id="tot1">—</b> <span>USDT</span></div>
+      <div class="tvp anentry" data-an="assets">Today's PnL <span id="today1">—</span> ›</div></div>
+    <svg class="spark" id="spark1" viewBox="0 0 120 50"></svg></div>
+  <div class="cta"><button class="lime" data-go="trade">Trade</button><button class="lime" data-go="assets">Assets</button></div>
+  <div class="card" style="padding:10px">
+    <div class="brief" id="brief">
+      <div class="top"><span>BRIEFING</span><span id="persona">—</span></div>
+      <div class="bwrap"><div class="pixbox"><svg id="pix" viewBox="0 0 16 18" shape-rendering="crispEdges">
+          <rect x="4" y="1" width="8" height="1" fill="#423043"/><rect x="3" y="2" width="10" height="2" fill="#423043"/>
+          <rect x="4" y="4" width="8" height="6" fill="#e8b58f"/><rect x="3" y="4" width="1" height="3" fill="#423043"/><rect x="12" y="4" width="1" height="3" fill="#423043"/>
+          <rect class="eye" x="5" y="6" width="2" height="1" fill="#2a2230"/><rect class="eye" x="9" y="6" width="2" height="1" fill="#2a2230"/>
+          <rect class="blush" x="4" y="7" width="2" height="1" fill="#ff9fb0"/><rect class="blush" x="10" y="7" width="2" height="1" fill="#ff9fb0"/>
+          <g class="shades"><rect x="4" y="5" width="3" height="2" fill="#0b0b0e"/><rect x="9" y="5" width="3" height="2" fill="#0b0b0e"/><rect x="7" y="5" width="2" height="1" fill="#0b0b0e"/></g>
+          <rect class="mouth" x="7" y="8" width="2" height="1" fill="#9b4a4a"/>
+          <rect x="7" y="10" width="2" height="1" fill="#d9a27e"/>
+          <rect x="3" y="11" width="10" height="5" fill="#88e6c4"/><rect x="7" y="11" width="2" height="2" fill="#f3e6d8"/>
+          <rect x="2" y="12" width="1" height="3" fill="#88e6c4"/><rect x="13" y="12" width="1" height="3" fill="#88e6c4"/>
+          <rect x="0" y="16" width="16" height="2" fill="#8f6b5c"/><rect x="11" y="14" width="3" height="2" fill="#2a2c33"/></svg></div>
+        <div style="flex:1;min-width:0"><div class="title" id="bTitle"></div><div class="body" id="bBody"></div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Markets</h3>
+    <div class="mrow" data-go="trade"><div class="coin"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path fill="#fff" d="M23.19 14.02c.31-2.1-1.29-3.24-3.48-4l.71-2.86-1.74-.43-.69 2.78c-.46-.11-.93-.22-1.39-.33l.7-2.8-1.74-.43-.71 2.85c-.38-.09-.75-.17-1.11-.26l-2.4-.6-.46 1.86s1.29.3 1.26.31c.7.18.83.64.81 1.01l-.81 3.25c.05.01.11.03.18.06l-.18-.05-1.14 4.55c-.09.21-.3.53-.79.41.02.03-1.26-.32-1.26-.32l-.86 1.99 2.27.57c.42.11.84.21 1.25.32l-.72 2.89 1.74.43.71-2.86c.48.13.94.25 1.39.36l-.71 2.85 1.74.43.72-2.88c2.97.56 5.2.34 6.14-2.35.76-2.16-.04-3.41-1.6-4.22 1.14-.26 2-1.01 2.23-2.56zm-3.98 5.58c-.54 2.16-4.18.99-5.36.7l.96-3.83c1.18.3 4.96.88 4.4 3.13zm.54-5.61c-.49 1.97-3.52.97-4.5.72l.87-3.48c.98.25 4.15.7 3.63 2.76z"/></svg></div><div class="mn"><b>BTCUSDT</b> <span class="perp">Perp</span><small id="mBtcSig">—</small></div>
+      <div class="mp"><b id="btc">—</b><small id="mark"></small></div><span class="chg" id="btcChg">—</span></div>
+    <div class="mrow"><div class="coin"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#627EEA"/><g fill="#fff"><path fill-opacity=".6" d="M16.5 4v8.87l7.5 3.35z"/><path d="M16.5 4L9 16.22l7.5-3.35z"/><path fill-opacity=".6" d="M16.5 21.97V28L24 17.62z"/><path d="M16.5 28v-6.03L9 17.62z"/><path fill-opacity=".2" d="M16.5 20.57l7.5-4.35-7.5-3.35z"/><path fill-opacity=".6" d="M9 16.22l7.5 4.35v-7.7z"/></g></svg></div><div class="mn"><b>ETHUSDT</b> <span class="perp">Perp</span><small>Ethereum</small></div>
+      <div class="mp"><b id="eth">—</b><small>&nbsp;</small></div><span class="chg" id="ethChg">—</span></div>
+    <div class="mrow"><div class="coin"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#000"/><path d="M7.5 22.5h4.2l3.1-9.6h-4.2z" fill="#0090BA"/><path d="M11.2 9.5h4.2l5.4 13h-4.2z" fill="#00B5E2"/><path d="M17.2 19.1h4.2l3.1-9.6h-4.2z" fill="#0068A9"/></svg></div><div class="mn"><b>NASDAQ</b> <span class="perp">Index</span><small id="ndxLive">Composite</small></div>
+      <div class="mp"><b id="ndx">—</b><small>&nbsp;</small></div><span class="chg" id="ndxChg">—</span></div>
+  </div>
+  <div class="card">
+    <h3>트레이딩 본부 · 50일선 신호</h3>
+    <div class="mkts">
+      <div class="mkt wide"><div class="h"><span>BTCUSDT · 1D · <span class="gold" id="ma">50MA</span></span><span id="sig"></span></div>
+        <div class="v" id="btc2">—</div><svg id="cBtc" viewBox="0 0 300 70" preserveAspectRatio="none"></svg></div>
+      <div class="mkt"><div class="h"><span>ETHUSDT</span><span id="ethChg2"></span></div><div class="v" id="eth2">—</div>
+        <svg id="cEth" viewBox="0 0 150 46" preserveAspectRatio="none"></svg></div>
+      <div class="mkt"><div class="h"><span>NASDAQ</span><span id="ndxChg2"></span></div><div class="v" id="ndx2">—</div>
+        <svg id="cNdx" viewBox="0 0 150 46" preserveAspectRatio="none"></svg></div>
+    </div>
+    <div class="row" style="margin-top:8px"><span class="muted">펀딩비 (8h)</span><b id="fund">—</b></div>
+  </div>
+  <div class="card" id="btCard">
+    <div class="ctr" id="btHead" style="cursor:pointer"><h3 style="margin:0">배율별 백테스트 · BTC · 비중 30%</h3><span class="muted" id="btArrow" style="font-size:12px;font-weight:700">펼치기 ▾</span></div>
+    <div class="muted" style="font-size:12px;margin-top:4px">추천 배율 3~5배 · 지금 <b id="btNow" style="color:var(--ink)">—</b></div>
+    <div id="btBody" style="display:none;margin-top:10px">
+    <p class="muted" style="margin:-4px 0 8px;font-size:11.5px" id="btSub"></p>
+    <table class="bt" id="btTable"></table>
+    <p class="muted" style="font-size:11.5px;margin:6px 0" id="btHold"></p>
+    <div style="background:var(--card);border-radius:10px;padding:8px 6px 4px;margin-top:4px">
+      <div class="muted" style="font-size:11px;font-weight:700;padding:0 4px 4px">배율별 자산 (시작 = 1배, 로그 축) · 범례를 누르면 강조</div>
+      <div id="btLegend" style="display:flex;flex-wrap:wrap;gap:4px 10px;padding:0 4px 6px;font-size:11.5px;font-weight:800"></div>
+      <svg id="btChart" viewBox="0 0 360 230" style="width:100%;height:auto;display:block"></svg>
+    </div>
+    <div class="note">• 실노출 = 배율 × 비중. 이 값이 수익과 위험을 정해요.<br>• 최대 낙폭 = 계좌 잔액이 가장 높았던 때 대비 가장 많이 줄었던 비율.<br>• 9배에서 최종 잔액이 가장 크지만 낙폭 -92.5%. 10배부턴 수익도 줄고, 20배는 65만 → 183 USDT까지 떨어졌어요.<br>• 추천: 비중 30%면 <b style="color:var(--gold)">배율 3~5배</b>. 과거 결과일 뿐 미래 수익을 보장하지 않아요.</div></div>
+  </div>
+</section>
+
+<!-- ═════════ Trade ═════════ -->
+<section class="tab" id="tab-trade">
+  <div class="sym"><div><b>BTCUSDT Perp</b><div class="symp"><span id="btcT">—</span> <small id="btcChgT"></small></div>
+      <small class="muted" id="markT"></small></div>
+    <div class="symr"><small class="muted">Funding (8h)</small><b id="fundT">—</b><small class="muted" id="sigT"></small></div></div>
+  <div class="card">
+    <h3>퀀트 전략 · Lv.1 50일선</h3>
+    <div class="row"><span class="muted" style="font-weight:700;font-size:13px">진입 비중</span><b id="wVal">30%</b></div>
+    <div class="slider" id="slider"><div class="track"></div><div class="fill"></div></div>
+    <div class="field"><label>배율 (x)</label><button class="step" data-d="-1">−</button><input type="number" id="lev" min="1" max="15"><button class="step" data-d="1">+</button></div>
+    <div class="field"><label>트레이더 말투</label><div class="seg" id="seg"><button data-p="에겐">에겐</button><button data-p="테토">테토</button></div></div>
+    <button class="pill dark" id="save">설정 저장</button>
+    <button class="pill green" id="pause">퀀트 트레이딩 시작</button>
+    <p class="muted" style="font-size:12px;margin:8px 2px 0">비중·배율은 다음 진입부터 적용돼요 (배율은 거래소에도 바로 반영). 중지해도 열린 포지션은 그대로예요.</p>
+  </div>
+
+  <div class="ttabs" id="tTabs"><button data-t="pos" class="on">Positions (<span id="posN">0</span>)</button><button data-t="orders">Orders</button><button data-t="history">History</button></div>
+  <div class="card" id="tPos">
+    <div class="ph"><div class="pt">BTCUSDT Perp <span class="muted">›</span></div>
+      <div class="pr"><span class="muted">PnL (USDT)</span><button class="icon" id="shareCur" title="PNL 카드 저장"><svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div></div>
+    <div class="ph2"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="oc" id="pSide">—</span><span class="oc" id="pMode">Cross</span><button class="oc" id="pLev">—x ✎</button><span class="bars" id="pBars"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="pnl" id="pPnl">—</div></div>
+    <div class="og">
+      <div><small>Size (USDT)</small><span id="pSize">—</span></div>
+      <div><small>Margin (USDT)</small><span id="pMargin">—</span></div>
+      <div><small>MMR</small><span id="pRatio">—</span></div>
+      <div><small>Entry price</small><span id="pEntry">—</span></div>
+      <div><small>Mark price</small><span id="pMark">—</span></div>
+      <div><small>Liq. price</small><span id="pLiq">—</span></div>
+    </div>
+    <div class="rp">Realized PnL (USDT)<b id="pReal">—</b></div>
+    <div class="rp" id="tpslVal" style="margin-top:4px"></div>
+    <div class="btn3"><button class="pill" id="tpslOpen">TP/SL</button><button class="pill" id="closeOpen">Close</button><button class="pill" id="closeAll">Close all</button></div>
+  </div>
+  <div class="card hl" id="hBody" style="display:none"></div>
+</section>
+
+<!-- ═════════ Assets ═════════ -->
+<section class="tab" id="tab-assets">
+  <div class="tv"><div><div class="muted tvl">Est total value</div>
+      <div class="tvn"><b id="tot2">—</b> <span>USDT</span></div>
+      <div class="tvp anentry" data-an="assets">Today's PnL <span id="today2">—</span> ›</div></div>
+    <svg class="spark" id="spark2" viewBox="0 0 120 50"></svg></div>
+  <div class="qa"><button data-qa="api"><i>🔑</i>API</button><button data-qa="help"><i>?</i>키 만드는 법</button><button data-go="trade"><i>⇄</i>Trade</button><button data-qa="card"><i>⤴</i>PNL 카드</button></div>
+  <h3 class="sec">Portfolio</h3>
+  <div class="pf">
+    <div class="pfc"><small>지갑 잔고</small><b id="aWal">—</b></div>
+    <div class="pfc"><small>미실현 손익</small><b id="aUp">—</b></div>
+    <div class="pfc"><small>사용 가능</small><b id="aAv">—</b></div>
+    <div class="pfc"><small>사용 증거금</small><b id="aUsed">—</b></div>
+  </div>
+  <span id="aEq" style="display:none"></span>
+  <div class="card">
+    <div class="ctr"><h3 class="ct" style="font-size:14px">계좌 그래프 (USDT)</h3><span class="muted anentry" data-an="assets" style="font-size:12px">Analysis ›</span></div>
+    <div style="font-size:12.5px;margin-top:2px"><span id="eqChg"></span></div>
+    <div class="chips2" id="eqPer" style="margin:8px 0 4px"><button data-p="1D">1D</button><button data-p="1W">1W</button><button data-p="1M" class="on">1M</button><button data-p="6M">6M</button><button data-p="1Y">1Y</button></div>
+    <svg id="eqChart" class="anentry" data-an="assets" viewBox="0 0 360 150" style="width:100%;height:auto;display:block"></svg>
+  </div>
+  <div class="card anentry" data-an="fut"><div class="ctr"><h3 class="ct">Analysis</h3><span class="muted">›</span></div>
+    <div class="og" style="margin-top:10px"><div><small>30D PnL</small><span id="an30">—</span></div><div><small>Win rate</small><span id="anWin">—</span></div><div><small>Positions</small><span id="anPos">—</span></div></div></div>
+  <div id="calBody" style="display:none"></div>
+  <div class="card"><h3>체결 · 활동 기록</h3><div class="log" id="log"></div></div>
+</section>
+  <div class="foot" id="foot">—</div>
+</div>
+
+<nav class="bnav" id="bnav">
+  <button data-go="kbtc"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>KBTC</button>
+  <button data-go="trade" class="mid"><span><svg viewBox="0 0 24 24"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg></span>Trade</button>
+  <button data-go="assets"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M14 3.2A9 9 0 0 1 20.8 10H14z"/></svg>Assets</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<div class="an" id="analysis"><div class="wrap2">
+  <div class="anh"><button class="icon" id="anBack">‹</button><b>Analysis</b><span style="width:32px"></span></div>
+  <div class="ttabs" id="anTabs"><button data-t="assets" class="on">Assets</button><button data-t="fut">Futures PnL</button></div>
+  <div class="chips2"><button class="anp" data-p="7">7D</button><button class="anp on" data-p="30">30D</button><button class="anp" data-p="90">90D</button><button class="anp" data-p="0">All</button></div>
+  <div id="anAssets">
+    <div class="card"><h3 class="ct">Performance</h3>
+      <div class="seg2" id="perfSeg" style="margin-top:10px"><button data-m="pnl" class="on">PnL</button><button data-m="pct">PnL%</button><button data-m="asset">Asset trend</button></div>
+      <div class="muted" id="perfLbl" style="margin-top:12px">Cumulative PnL</div><div class="big" id="perfVal">—</div>
+      <svg id="perfChart" class="ch" viewBox="0 0 360 190"></svg></div>
+    <div class="card"><div class="ctr"><h3 class="ct">Daily PnL</h3><div class="seg2 sm" id="dSeg"><button data-m="cal" class="on">Calendar</button><button data-m="bar">Bars</button></div></div>
+      <div class="muted" id="dLbl" style="margin-top:10px"></div><div class="big" id="dVal">—</div>
+      <div id="dailyBody"></div></div>
+  </div>
+  <div id="anFut" style="display:none">
+    <div class="card"><div class="ctr" style="align-items:flex-start"><div><div class="muted">Total PnL</div><div class="big" id="fTot">—</div>
+        <div class="muted">Today's PnL <b id="fToday">—</b></div></div><svg id="futChart" viewBox="0 0 360 190" style="width:48%;height:auto"></svg></div>
+      <div class="og" style="margin-top:14px"><div><small>Win rate</small><span id="fWin">—</span></div><div><small>Positions</small><span id="fPos">—</span></div><div><small>Risk/reward ratio</small><span id="fRR">—</span></div></div></div>
+    <div class="card"><div id="futCal"></div></div>
+    <div class="ttabs" id="fTabs"><button data-m="rank" class="on">PnL ranking</button><button data-m="fund">Funding fees</button></div>
+    <div class="hl" id="fList"></div>
+  </div>
+</div></div>
+
+<div class="sheet" id="apiSheet"><div class="box">
+  <h2>API <button class="q" data-help>?</button><button class="x" data-close>✕</button></h2>
+  <p class="muted" style="margin:0 0 10px;font-size:13px">바이낸스 Demo 선물 계좌 연결 설정</p>
+  <div class="row"><span class="muted">연결된 키</span><b id="keyHint">—</b></div>
+  <div class="row"><span class="muted">계좌</span><b>Binance Demo · USDT-M 선물</b></div>
+  <p class="muted" style="margin:14px 0 2px;font-size:13px;font-weight:700">다른 키로 바꾸기</p>
+  <input class="in" id="k2" placeholder="API Key" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <input class="in" id="s2" type="password" placeholder="Secret Key" autocomplete="off">
+  <button class="pill green" id="reconnect">이 키로 연결</button>
+  <button class="pill dark" id="logout">이 기기에서 로그아웃</button>
+  <button class="pill red" id="disconnect">API 연결 해제 (서버에서 키 삭제)</button>
+  <div class="note">로그아웃해도 서버의 퀀트 트레이딩은 계속 돌아가요. 연결 해제하면 내 키와 기록이 서버에서 지워지고 매매도 멈춰요 (열린 포지션은 바이낸스에 그대로).</div>
+</div></div>
+
+<div class="sheet" id="tpslSheet"><div class="box">
+  <h2>TP/SL<button class="x" data-close>✕</button></h2>
+  <div style="font-weight:700;font-size:14px;margin:4px 0 10px">BTCUSDT Perp <span class="muted" id="tsHead" style="font-weight:600;font-size:12px"></span></div>
+  <div class="og2"><div><small>Entry price</small><b id="tsEntry">—</b></div><div><small>Mark price</small><b id="tsMark">—</b></div></div>
+  <div class="tsh"><b>Take profit</b><span class="muted" id="tsTpRoi"></span></div>
+  <div class="ip2"><label class="ipx"><input id="tsTp" type="number" inputmode="decimal" placeholder="Trigger price"><span>USDT</span></label>
+    <label class="ipx sm"><input id="tsTpC" type="number" inputmode="decimal" placeholder="Change"><span>%</span></label></div>
+  <div class="tslide" id="tsTpS" data-max="25" data-for="tp"></div>
+  <div class="tsh"><b>Stop loss</b><span class="muted" id="tsSlRoi"></span></div>
+  <div class="ip2"><label class="ipx"><input id="tsSl" type="number" inputmode="decimal" placeholder="Trigger price"><span>USDT</span></label>
+    <label class="ipx sm"><input id="tsSlC" type="number" inputmode="decimal" placeholder="Change"><span>%</span></label></div>
+  <div class="tslide" id="tsSlS" data-max="10" data-for="sl"></div>
+  <label class="ipx" style="margin-top:14px"><input id="tsAmt" type="number" inputmode="decimal" placeholder="Amount"><span>BTC</span></label>
+  <div class="tslide" id="tsAmS" data-max="100" data-for="amt"></div>
+  <div class="row" style="margin-top:8px"><span class="muted">Available</span><b id="tsAvail">—</b></div>
+  <label class="chk" style="margin-top:6px"><input type="checkbox" id="tsAuto" checked> 다음 진입에도 같은 % 로 자동 적용</label>
+  <button class="pill" id="tsApply" style="background:#c93d68;margin-top:12px">Confirm</button>
+  <button class="pill dark" id="tsClear" style="padding:9px">TP/SL 모두 해제</button>
+</div></div>
+
+<div class="sheet" id="closeSheet"><div class="box">
+  <h2>Close <span class="muted" style="font-size:13px;font-weight:600" id="csHead"></span><button class="x" data-close>✕</button></h2>
+  <div class="row"><span class="muted">Mark price</span><b id="csMark">—</b></div>
+  <div class="lbl"><span>청산 비율</span><span id="csQty"></span></div>
+  <div class="qk" id="csQ"><button data-r="0.25">25%</button><button data-r="0.5" class="on">50%</button><button data-r="0.75">75%</button><button data-r="1">100%</button></div>
+  <div class="row"><span class="muted">예상 실현손익</span><b id="csPnl">—</b></div>
+  <label class="chk"><input type="checkbox" id="csStop"> 자동매매도 중지 (안 하면 다음 09:00 신호대로 다시 진입)</label>
+  <button class="pill red" id="csGo">시장가 Close</button>
+</div></div>
+
+<div class="sheet" id="cardSheet"><div class="box">
+  <h2>Share PnL<button class="x" data-close>✕</button></h2>
+  <img id="cardPrev" alt="PNL 카드" style="width:72%;display:block;margin:6px auto 12px;border-radius:10px;border:1px solid var(--line)">
+  <div class="tabs" id="cardMode"><button data-m="roi">PnL %</button><button data-m="pnl">Total PnL</button><button data-m="both">PnL $ + %</button></div>
+  <button class="pill green" id="cardSave">저장 · 공유</button>
+</div></div>
+
+<div class="sheet" id="helpSheet"><div class="box">
+  <h2>바이낸스 Demo API 키 만드는 법<button class="x" data-close>✕</button></h2>
+  <ol class="steps">
+    <li><b>demo.binance.com</b> 에 접속해 바이낸스 계정으로 로그인해요. 위에 <b>DEMO TRADING</b> 표시가 보이면 맞아요.</li>
+    <li>오른쪽 위 <b>사람 아이콘</b>을 누르고 <b>Demo Trading API</b> 를 선택해요.</li>
+    <li><b>Create API</b> (노란 버튼)를 눌러요.</li>
+    <li><b>System generated</b> 를 선택하고 <b>Next</b>.</li>
+    <li>이름을 적고 (예: <b>KBTC</b>) <b>Next</b>.</li>
+    <li><b>API Key</b> 옆 <b>Copy</b> → KBTC 의 <b>API Key</b> 칸에 붙여넣기.</li>
+    <li><b>Secret Key</b> 옆 <b>Copy</b> → KBTC 의 <b>Secret Key</b> 칸에 붙여넣기.<br><span class="muted">Secret 은 이 화면을 벗어나면 다시 볼 수 없어요. 놓쳤다면 Delete 후 새로 만들면 돼요.</span></li>
+    <li>아래 <b>API restrictions</b> 에서 <b>Enable Futures</b> 가 체크돼 있는지 확인해요.</li>
+    <li>KBTC 에서 <b>연결하기</b> → <b>퀀트 트레이딩 시작</b> 을 누르면 끝! 매일 09:00 일봉 마감 직후 자동으로 판단해요.</li>
+  </ol>
+  <div class="note">• 실계좌가 아닌 <b>Demo</b> 키만 써요. 진짜 돈은 움직이지 않아요.<br>• 선물 포지션 모드는 기본값인 <b>단방향(One-way)</b> 이어야 해요.<br>• API Key·Secret 은 비밀번호처럼 다른 사람에게 보내지 마세요.</div>
+  <a class="linkbtn" href="https://demo.binance.com/en/my/settings/api-management" target="_blank" rel="noopener">바이낸스 Demo API 관리 열기 ↗</a>
+</div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt = (v, d = 1) => v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", {minimumFractionDigits: d, maximumFractionDigits: d});
+const pct = v => v == null ? "" : (v > 0 ? "+" : "") + v.toFixed(2) + "%";
+const tone = v => v > 0 ? "up" : v < 0 ? "down" : "";
+let S = null, draft = null, typed = "";
+
+function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("show"), 2200); }
+
+async function api(path, body){
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)} : {});
+  if (r.status === 401){ showLogin(); throw new Error("login"); }
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.status);
+  return j;
+}
+function showLogin(){ $("app").style.display = "none"; $("login").style.display = "block"; }
+async function connect(k, s, errEl, btn){
+  errEl.textContent = ""; btn.disabled = true; const t = btn.textContent; btn.textContent = "키 확인 중…";
+  try { const st = await api("/api/connect", {key: k.value, secret: s.value}); k.value = s.value = "";
+        $("login").style.display = "none"; $("app").style.display = "block"; closeSheets(); render(st); toast("API 연결 완료"); }
+  catch(e){ errEl.textContent = e.message === "login" ? "" : e.message; if (errEl.id !== "loginErr") toast("실패: " + e.message); }
+  finally { btn.disabled = false; btn.textContent = t; }
+}
+$("connectBtn").onclick = () => connect($("k"), $("s"), $("loginErr"), $("connectBtn"));
+$("reconnect").onclick = () => connect($("k2"), $("s2"), {textContent: ""}, $("reconnect"));
+function closeSheets(){ document.querySelectorAll(".sheet").forEach(x => x.classList.remove("open")); }
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheets);
+document.querySelectorAll(".sheet").forEach(sh => sh.addEventListener("click", e => { if (e.target === sh) closeSheets(); }));
+document.querySelectorAll("[data-help]").forEach(b => b.onclick = () => { closeSheets(); $("helpSheet").classList.add("open"); });
+$("apiBtn").onclick = () => $("apiSheet").classList.add("open");
+$("logout").onclick = async () => { await fetch("/api/logout", {method: "POST"}); closeSheets(); showLogin(); };
+$("disconnect").onclick = async () => {
+  if (!confirm("서버에서 내 API 키와 기록을 지우고 매매를 멈출까요? (바이낸스의 열린 포지션은 그대로)")) return;
+  try { await api("/api/disconnect", {}); closeSheets(); showLogin(); toast("연결 해제했어요"); } catch(e){ toast("실패: " + e.message); }
+};
+
+function line(svg, vals, color, w, lo, hi, W, H){
+  if (!vals || vals.length < 2) return "";
+  lo = lo ?? Math.min(...vals); hi = hi ?? Math.max(...vals); const r = (hi - lo) || 1;
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * W).toFixed(1)},${(H - 3 - (v - lo) / r * (H - 6)).toFixed(1)}`).join(" ");
+  return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${w}" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>`;
+}
+
+function typeBriefing(b, persona){
+  const box = $("brief"); box.className = "brief " + (persona === "테토" ? "teto" : "egen");
+  $("persona").textContent = persona + " MODE"; $("pix").dataset.p = persona;
+  $("persona").style.color = persona === "테토" ? "#fff" : "#ffb3c1";
+  const head = {long: "var(--up)", short: "var(--down)"}[b.kind] || (persona === "테토" ? "#fff" : "#ffc98b");
+  $("bTitle").style.color = head;
+  const key = persona + b.title;
+  const body = (b.lines || []).join("\n");
+  if (key === typed){ $("bBody").textContent = body; return; }
+  typed = key; let n = 0; $("pix").classList.add("talk"); const full = b.title + "\n" + body;
+  clearInterval(typeBriefing._t);
+  typeBriefing._t = setInterval(() => {
+    n += 2; const t = full.slice(0, n), cut = t.indexOf("\n");
+    $("bTitle").textContent = cut < 0 ? t : t.slice(0, cut);
+    $("bBody").innerHTML = (cut < 0 ? "" : t.slice(cut + 1).replace(/&/g,"&amp;").replace(/</g,"&lt;")) + (n < full.length ? '<span class="cursor"></span>' : "");
+    if (n >= full.length) { clearInterval(typeBriefing._t); $("pix").classList.remove("talk"); }
+  }, 35);
+}
+
+function render(s){
+  S = s;
+  $("mode").textContent = (s.settings.mode || "").toUpperCase() + (s.paused ? " · 일시정지" : "");
+  $("btc").textContent = fmt(s.btc); $("btc").className = tone(s.btc_chg);
+  $("btcChg").textContent = pct(s.btc_chg); $("btcChg").className = "chg " + tone(s.btc_chg);
+  $("btcT").textContent = fmt(s.btc); $("btcT").className = tone(s.btc_chg); $("btcChgT").textContent = pct(s.btc_chg); $("btcChgT").className = tone(s.btc_chg);
+  $("markT").textContent = "Mark " + fmt(s.mark);
+  $("mark").textContent = "Mark " + fmt(s.mark);
+  typeBriefing(s.briefing, s.settings.persona);
+  const p = s.pos || {}, a = s.acct || {};
+  const side = p.amt > 0 ? "long" : p.amt < 0 ? "short" : "";
+  $("pSide").textContent = side ? (side === "long" ? "Long" : "Short") : "No position"; $("pSide").className = "oc " + side;
+  $("pMode").textContent = p.mode || "Cross"; $("pLev").textContent = (p.lev || "—") + "x ✎";
+  const mmr = a.equity ? a.maint / a.equity * 100 : 0, nb = side ? Math.min(5, 1 + Math.floor(mmr / 20)) : 0;
+  [...$("pBars").children].forEach((b, i) => b.style.background = i < nb ? (mmr < 30 ? "var(--up)" : mmr < 60 ? "var(--gold)" : "var(--down)") : "#3a3d44");
+  if (side){
+    const margin = Math.abs(p.amt) * p.entry / p.lev, roe = margin ? p.upnl / margin * 100 : 0;
+    $("pPnl").textContent = `${p.upnl > 0 ? "+" : ""}${fmt(p.upnl, 2)} (${pct(roe)})`; $("pPnl").className = "pnl " + tone(p.upnl);
+    $("pSize").textContent = fmt(p.notional, 2); $("pMargin").textContent = fmt(margin, 2);
+    $("pRatio").textContent = mmr.toFixed(2) + "%";
+    $("pEntry").textContent = fmt(p.entry); $("pMark").textContent = fmt(p.mark); $("pLiq").textContent = p.liq ? fmt(p.liq) : "—";
+    if (s.realized != null) { $("pReal").textContent = (s.realized > 0 ? "+" : "") + fmt(s.realized, 2); $("pReal").className = tone(s.realized); }
+  } else {
+    ["pPnl", "pSize", "pMargin", "pRatio", "pEntry", "pMark", "pLiq", "pReal"].forEach(k => $(k).textContent = "—"); $("pPnl").className = "pnl";
+  }
+  // 본부 모니터
+  $("btc2").textContent = fmt(s.btc);
+  const d = s.daily || [];
+  if (d.length >= 95){
+    const view = d.slice(-45), ma = view.map((_, i) => { const e = d.length - 45 + i; return d.slice(e - 49, e + 1).reduce((x, y) => x + y, 0) / 50; });
+    const lo = Math.min(...view, ...ma), hi = Math.max(...view, ...ma);
+    $("cBtc").innerHTML = line(null, ma, "#ffc56b", 1.5, lo, hi, 300, 70) + line(null, view, "#ede8df", 1.8, lo, hi, 300, 70);
+    $("ma").textContent = "50MA " + fmt(ma[ma.length - 1], 0);
+  }
+  const b = s.briefing; if (b.signal){ $("sig").textContent = (b.signal > 0 ? "LONG " : "SHORT ") + (b.gap > 0 ? "+" : "") + b.gap.toFixed(1) + "%"; $("sig").className = b.signal > 0 ? "up" : "down"; }
+  $("eth").textContent = fmt(s.eth, 2); $("ethChg").textContent = pct(s.eth_chg); $("ethChg").className = "chg " + tone(s.eth_chg);
+  $("eth2").textContent = fmt(s.eth, 2); $("ethChg2").textContent = pct(s.eth_chg); $("ethChg2").className = tone(s.eth_chg);
+  $("cEth").innerHTML = line(null, s.eth_1h, s.eth_chg >= 0 ? "#3ecf7a" : "#ff5f7e", 1.6, null, null, 150, 46);
+  const n = s.ndx || {};
+  $("ndx").textContent = fmt(n.price, 0); $("ndxChg").textContent = pct(n.chg); $("ndxChg").className = "chg " + tone(n.chg);
+  $("ndxLive").textContent = n.live ? "Composite · LIVE" : "Composite · 장 마감";
+  $("ndx2").textContent = fmt(n.price, 0); $("ndxChg2").textContent = (n.live ? "LIVE " : "") + pct(n.chg); $("ndxChg2").className = tone(n.chg);
+  $("cNdx").innerHTML = line(null, n.closes, n.chg >= 0 ? "#3ecf7a" : "#ff5f7e", 1.6, null, null, 150, 46);
+  $("fund").textContent = s.funding == null ? "—" : (s.funding * 100).toFixed(4) + "%"; $("fundT").textContent = $("fund").textContent;
+  if (b.signal) { const t = `50일선 ${b.signal > 0 ? "LONG" : "SHORT"} ${b.gap > 0 ? "+" : ""}${b.gap.toFixed(1)}%`;
+    $("mBtcSig").textContent = t; $("sigT").textContent = t; $("sigT").className = b.signal > 0 ? "up" : "down"; }
+  $("posN").textContent = (s.pos && s.pos.amt) ? 1 : 0;
+  if (a.equity) { $("tot1").textContent = $("tot2").textContent = fmt(a.equity, 2); renderToday(a.equity); }
+  // 계좌
+  $("aEq").textContent = fmt(a.equity, 2) + " USDT"; $("aWal").textContent = fmt(a.wallet, 2) + " USDT";
+  $("aUp").textContent = (a.upnl > 0 ? "+" : "") + fmt(a.upnl, 2) + " USDT"; $("aUp").className = tone(a.upnl);
+  $("aAv").textContent = fmt(a.avail, 2) + " USDT"; $("aUsed").textContent = fmt(a.used, 2) + " USDT";
+  // 설정 (편집 중이 아니면 서버값 반영)
+  if (!draft) setDraft({weight: s.settings.weight, leverage: s.settings.leverage, persona: s.settings.persona}, false);
+  $("pause").textContent = s.paused ? "퀀트 트레이딩 시작" : "중지"; $("pause").className = "pill " + (s.paused ? "green" : "red");
+  $("keyHint").textContent = s.key_hint || "—";
+  renderTPSL(s);
+  if (!render._hist) { render._hist = true; loadAnSummary(); loadEquity(); setInterval(loadEquity, 120000); setTimeout(loadRealized, 1500); setInterval(loadRealized, 60000); }
+  renderBT();
+  $("disconnect").style.display = s.owner ? "none" : "block";
+  $("log").innerHTML = (s.events || []).map(([t, m]) => `<div><time>${t}</time>${m.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>`).join("") || '<div class="muted">아직 기록이 없어요</div>';
+  const age = s.at ? Math.round(s.now - s.at) : null;
+  $("foot").textContent = s.acct_err ? "계좌 조회 오류: " + s.acct_err : s.err ? "시세 오류: " + s.err : `업데이트 ${age ?? "—"}초 전 · ${s.settings.symbol} · 5초마다 갱신`;
+}
+
+// ── 설정 위젯 ──
+const TICKS = [0, 25, 50, 75, 100];
+const sl = $("slider");
+TICKS.forEach(t => { sl.insertAdjacentHTML("beforeend", `<div class="dot" data-t="${t}" style="left:${t}%"></div><div class="lbl" style="left:${t}%">${t}%</div>`); });
+sl.insertAdjacentHTML("beforeend", '<div class="knob"></div>');
+let cur = {weight: 30, leverage: 10, persona: "에겐"};
+function setDraft(v, editing = true){
+  cur = Object.assign({}, cur, v);
+  if (editing) draft = true;
+  const w = cur.weight;
+  $("wVal").textContent = Math.round(w) + "%";
+  sl.querySelector(".fill").style.width = w + "%"; sl.querySelector(".knob").style.left = w + "%";
+  sl.querySelectorAll(".dot").forEach(d => d.classList.toggle("on", +d.dataset.t <= w));
+  if (document.activeElement !== $("lev")) $("lev").value = cur.leverage;
+  document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.p === cur.persona));
+  $("save").className = "pill " + (draft ? "green" : "dark"); $("save").textContent = draft ? "설정 저장 (변경됨)" : "설정 저장";
+}
+function slide(e){
+  const r = sl.getBoundingClientRect(); let v = Math.round(Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100)));
+  TICKS.forEach(t => { if (Math.abs(v - t) <= 2) v = t; }); setDraft({weight: Math.max(1, v)});
+}
+sl.addEventListener("pointerdown", e => { sl.setPointerCapture(e.pointerId); slide(e); });
+sl.addEventListener("pointermove", e => { if (e.buttons) slide(e); });
+const MAXLEV = () => (S && S.settings.max_lev) || 15;
+document.querySelectorAll(".step").forEach(b => b.onclick = () => setDraft({leverage: Math.min(MAXLEV(), Math.max(1, (+$("lev").value || 1) + +b.dataset.d))}));
+$("lev").addEventListener("input", () => { draft = true; cur.leverage = +$("lev").value; setDraft({}); });
+document.querySelectorAll("#seg button").forEach(b => b.onclick = () => setDraft({persona: b.dataset.p}));
+$("save").onclick = async () => {
+  if (!draft) return;
+  const body = {};
+  if (cur.weight !== S.settings.weight) body.weight = cur.weight;
+  if (+cur.leverage !== S.settings.leverage) body.leverage = +cur.leverage;
+  if (cur.persona !== S.settings.persona) body.persona = cur.persona;
+  try { draft = null; render(await api("/api/settings", body)); toast("저장했어요"); } catch(e){ draft = true; toast("실패: " + e.message); }
+};
+$("pause").onclick = async () => {
+  const next = !S.paused;
+  if (next && !confirm("퀀트 트레이딩을 멈출까요? (열린 포지션은 그대로)")) return;
+  if (!next && !confirm(`비중 ${S.settings.weight}% · ${S.settings.leverage}배로 퀀트 트레이딩을 시작할까요?\n매일 09:00 일봉 마감 직후 50일선 신호로 자동 매매해요.`)) return;
+  try { render(await api("/api/pause", {paused: next})); toast(next ? "중지했어요" : "퀀트 트레이딩 시작!"); } catch(e){ toast("실패: " + e.message); }
+};
+
+async function load(){
+  try { const s = await api("/api/state"); $("login").style.display = "none"; $("app").style.display = "block"; render(s); }
+  catch(e){ if (e.message !== "login") $("foot").textContent = "연결 오류: " + e.message; }
+}
+const VD = {"보수": "#9ea2aa", "안정": "#88e6c4", "균형": "#3ecf7a", "공격": "#a3d977", "공격 · 추천 상한": "#ffc56b", "위험": "#ff9f43", "매우 위험": "#ff5f7e"};
+let BT = null;
+const LC = {"1": "#9ea2aa", "2": "#88e6c4", "3": "#3ecf7a", "4": "#a3d977", "5": "#ffc56b", "6": "#ffb05c", "7": "#ffa14f",
+            "8": "#ff9343", "9": "#ff8a3d", "10": "#ff7a45", "15": "#ff5f7e", "20": "#c0392b"};
+let btFocus;
+function drawBTChart(){
+  const cv = BT.curves; if (!cv) return;
+  const W = 360, H = 230, L = 38, R = W - 6, T = 6, B = H - 18;
+  const keys = Object.keys(cv).filter(k => k !== "hold");
+  const vals = Object.values(cv).flat().map(p => p[1]).filter(v => v > 0);
+  const lo = Math.max(Math.min(...vals), 0.05), ly0 = Math.log10(lo), ly1 = Math.log10(Math.max(...vals)) + 0.05;
+  const t0 = Date.parse(cv.hold[0][0]), t1 = Date.parse(cv.hold[cv.hold.length - 1][0]);
+  const X = d => L + (Date.parse(d) - t0) / (t1 - t0) * (R - L), Y = v => B - (Math.log10(Math.max(v, lo)) - ly0) / (ly1 - ly0) * (B - T);
+  let g = "";
+  for (let e = Math.floor(ly0); e <= Math.ceil(ly1); e++) for (const m of [1, 3]) {
+    const v = m * 10 ** e; if (v < lo || v > 10 ** ly1) continue;
+    g += `<line x1="${L}" x2="${R}" y1="${Y(v)}" y2="${Y(v)}" stroke="${m === 1 ? "#33363d" : "#24272e"}" stroke-width=".6"/>` +
+         `<text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="8.5" fill="#9ea2aa">${+v.toPrecision(2)}배</text>`;
+  }
+  const y0 = +cv.hold[0][0].slice(0, 4), y1 = +cv.hold[cv.hold.length - 1][0].slice(0, 4);
+  for (let y = y0; y <= y1; y++) { const x = y === y0 ? L : X(`${y}-01-01`);
+    g += `<line x1="${x}" x2="${x}" y1="${T}" y2="${B}" stroke="#24272e" stroke-width=".6"/><text x="${x}" y="${H - 5}" text-anchor="middle" font-size="8.5" fill="#9ea2aa">${String(y).slice(2)}년</text>`; }
+  const path = k => { let d = ""; for (const [ds, v] of cv[k]) { if (v <= 0) break; d += (d ? "L" : "M") + X(ds).toFixed(1) + "," + Y(v).toFixed(1); } return d; };
+  g += `<path d="${path("hold")}" fill="none" stroke="#ede8df" stroke-width=".9" stroke-dasharray="2.5 2.5"/>`;
+  for (const k of [...keys].sort((a, b) => (a === btFocus) - (b === btFocus))) {
+    const dim = btFocus && k !== btFocus;
+    g += `<path d="${path(k)}" fill="none" stroke="${dim ? "#3a3d44" : LC[k]}" stroke-width="${k === btFocus ? 2.2 : 1.1}" stroke-linejoin="round"/>`;
+  }
+  $("btChart").innerHTML = g;
+  $("btLegend").innerHTML = keys.map(k => `<span data-k="${k}" style="cursor:pointer;color:${!btFocus || k === btFocus ? LC[k] : "#6b6f78"}">■ ${k}배</span>`).join("") +
+    `<span style="color:#ede8df">┄ 보유</span>`;
+  $("btLegend").querySelectorAll("[data-k]").forEach(el => el.onclick = () => { btFocus = btFocus === el.dataset.k ? null : el.dataset.k; drawBTChart(); });
+}
+function renderBT(){
+  if (!BT) return;
+  if (btFocus === undefined && S) btFocus = String(S.settings.leverage);
+  drawBTChart();
+  const cur = S ? S.settings.leverage : null, pc = v => (v > 0 ? "+" : "") + (v * 100).toFixed(v <= -0.99 ? 2 : 1) + "%";
+  const n = v => Math.round(v).toLocaleString();
+  const cr = BT.rows.find(r => r.lev === cur);
+  $("btNow").textContent = cr ? `${cur}배 · 낙폭 ${pc(cr.mdd)} · ${cr.verdict.replace("공격 · ", "")}` : `${cur}배`;
+  $("btSub").textContent = `Lv.1 50일선 · ${BT.start} ~ ${BT.end} · 시작 ${BT.capital.toLocaleString()} USDT · 수수료·펀딩·청산 반영`;
+  $("btHold").textContent = `모든 금액·%는 전체 계좌 잔액(USDT) 기준 · 시작 ${n(BT.capital)} USDT · BTC 그냥 보유 ${BT.hold.toFixed(1)}배 (최대 낙폭 ${(BT.hold_mdd * 100).toFixed(1)}%)`;
+  $("btTable").innerHTML = `<tr><th>배율</th><th>최종 계좌 잔액<br>(연평균)</th><th>최대 낙폭<br>(고점→바닥 잔액)</th><th>최악의 해</th><th>판정</th></tr>` +
+    BT.rows.map(r => `<tr class="${r.lev === cur ? "cur" : ""}"><td>${r.lev}배${r.lev === cur ? " ◀" : ""}<br><span class="muted" style="font-size:10.5px">실노출 ${r.expo.toFixed(1)}</span></td>
+      <td class="up">${n(r.usdt)}<br><span style="font-size:10.5px">${pc(r.cagr)}</span></td>
+      <td class="${r.mdd < -0.6 ? "down" : ""}">${pc(r.mdd)}<br><span class="muted" style="font-size:10px">${n(r.peak_usdt)}→${n(r.peak_usdt * (1 + r.mdd))}</span></td>
+      <td class="${r.worst_year < 0 ? "down" : ""}">${pc(r.worst_year)}</td>
+      <td><span class="vd" style="background:${VD[r.verdict] || "#9ea2aa"}">${r.verdict.replace("공격 · ", "")}</span></td></tr>`).join("");
+}
+fetch("/backtest.json").then(r => r.json()).then(j => { BT = j; renderBT(); }).catch(() => {});
+// ───── 포지션: TP/SL · Close · Close all · 배율 ─────
+const P = () => (S && S.pos && S.pos.amt) ? S.pos : null;
+const sideOf = p => p.amt > 0 ? 1 : -1;
+const roiToPx = (p, roi) => p.entry * (1 + sideOf(p) * roi / 100 / p.lev);
+const pxToRoi = (p, px) => sideOf(p) * (px / p.entry - 1) * p.lev * 100;
+// 가격 변화율(%) = 진입가 대비 유리한 방향. TP: 롱 ↑ / 숏 ↓, SL: 반대
+const chToPx = (p, ch, kind) => p.entry * (1 + sideOf(p) * (kind === "tp" ? 1 : -1) * ch / 100);
+const pxToCh = (p, px, kind) => sideOf(p) * (kind === "tp" ? 1 : -1) * (px / p.entry - 1) * 100;
+const TS = {tp: 0, sl: 0, amt: 100};
+function tslide(el){
+  const max = +el.dataset.max, ticks = [0, 1, 2, 3, 4, 5].map(i => max / 5 * i), unit = el.dataset.for === "amt" ? "%" : "%";
+  el.innerHTML = '<div class="tr"></div><div class="fl"></div>' + ticks.map(t => `<div class="dt" style="left:${t / max * 100}%"></div><div class="lb" style="left:${t / max * 100}%">${+t.toFixed(1)}${unit}</div>`).join("") + '<div class="tip"></div><div class="kn"></div>';
+  const set = e => { const r = el.getBoundingClientRect(); let v = Math.min(max, Math.max(0, (e.clientX - r.left) / r.width * max));
+    ticks.forEach(t => { if (Math.abs(v - t) <= max * .03) v = t; }); v = Math.round(v * 10) / 10; tsSet(el.dataset.for, v, "slide"); };
+  el.addEventListener("pointerdown", e => { try { el.setPointerCapture(e.pointerId); } catch(_){} clearTimeout(el._t); el.classList.add("drag"); set(e); });
+  const up = () => { el._t = setTimeout(() => el.classList.remove("drag"), 700); };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  el.addEventListener("pointermove", e => { if (e.buttons) set(e); });
+}
+function slidePos(id, v){ const el = $(id), max = +el.dataset.max, f = Math.min(100, Math.max(0, v / max * 100));
+  el.querySelector(".kn").style.left = f + "%"; el.querySelector(".fl").style.width = f + "%";
+  const tip = el.querySelector(".tip"); if (tip) { tip.style.left = f + "%"; tip.textContent = `${+(+v).toFixed(1)}%`; }
+  el.querySelectorAll(".dt").forEach(d => d.classList.toggle("on", parseFloat(d.style.left) <= f)); }
+function tsSet(kind, v, src){
+  const p = P(); if (!p) return;
+  if (kind === "amt") { TS.amt = v; if (src !== "input") $("tsAmt").value = v ? (Math.abs(p.amt) * v / 100).toFixed(4) : ""; slidePos("tsAmS", v);
+    tsEst("tp"); tsEst("sl"); return; }
+  const pxId = kind === "tp" ? "tsTp" : "tsSl", chId = pxId + "C", sl = kind === "tp" ? "tsTpS" : "tsSlS", roiId = kind === "tp" ? "tsTpRoi" : "tsSlRoi";
+  let ch = v;
+  if (src === "price") { const px = +$(pxId).value; ch = px ? pxToCh(p, px, kind) : 0; $(chId).value = px ? ch.toFixed(2) : ""; }
+  else { $(pxId).value = ch ? chToPx(p, ch, kind).toFixed(1) : ""; if (src !== "change") $(chId).value = ch ? ch : ""; }
+  TS[kind] = ch; slidePos(sl, Math.max(0, ch)); tsEst(kind);
+}
+function tsEst(kind){
+  const p = P(); if (!p) return;
+  const px = +$(kind === "tp" ? "tsTp" : "tsSl").value, roi = px ? pxToRoi(p, px) : 0, out = $(kind === "tp" ? "tsTpRoi" : "tsSlRoi");
+  const share = TS.amt / 100, pnl = sideOf(p) * (px - p.entry) * Math.abs(p.amt) * share;
+  $("tsApply").style.opacity = TS.amt > 0 ? "" : ".45";
+  if (px && !(TS.amt > 0)) { out.innerHTML = '<span class="muted">Amount 0 · 설정 안 됨</span>'; return; }
+  out.innerHTML = px ? `예상 PnL <b class="${tone(pnl)}">${pnl > 0 ? "+" : pnl < 0 ? "-" : ""}${fmt(Math.abs(pnl), 2)} USDT (${pct(roi)})</b>` : "";
+}
+["tsTpS", "tsSlS", "tsAmS"].forEach(id => tslide($(id)));
+$("tsTp").addEventListener("input", () => tsSet("tp", 0, "price")); $("tsSl").addEventListener("input", () => tsSet("sl", 0, "price"));
+$("tsTpC").addEventListener("input", () => tsSet("tp", +$("tsTpC").value || 0, "change")); $("tsSlC").addEventListener("input", () => tsSet("sl", +$("tsSlC").value || 0, "change"));
+$("tsAmt").addEventListener("input", () => { const p = P(); if (p) tsSet("amt", Math.min(100, (+$("tsAmt").value || 0) / Math.abs(p.amt) * 100), "input"); });
+$("tpslOpen").onclick = () => {
+  const p = P(); if (!p) return toast("열린 포지션이 없어요");
+  const t = S.tpsl || {};
+  $("tsHead").textContent = `· ${p.amt > 0 ? "Long" : "Short"} ${p.lev}x`;
+  $("tsEntry").textContent = fmt(p.entry); $("tsMark").textContent = fmt(p.mark); $("tsAvail").textContent = `${Math.abs(p.amt)} BTC`;
+  TS.amt = 100; tsSet("amt", 100, "slide");
+  $("tsTp").value = t.tp || ""; $("tsSl").value = t.sl || ""; tsSet("tp", 0, "price"); tsSet("sl", 0, "price");
+  $("tsApply").textContent = `Confirm · ${p.amt > 0 ? "Sell" : "Buy"} to close`;
+  $("tpslSheet").classList.add("open");
+};
+$("tsApply").onclick = async () => {
+  const tp = +$("tsTp").value || 0, sl = +$("tsSl").value || 0, ratio = TS.amt / 100;
+  if (!(ratio > 0)) return toast("Amount 가 0 이에요. 수량을 정해 주세요");
+  if (!tp && !sl) return toast("TP 나 SL 가격을 넣어 주세요");
+  try { render(await api("/api/tpsl", {tp_price: tp, sl_price: sl, auto: $("tsAuto").checked, ratio})); closeSheets(); toast("TP/SL 설정 완료"); HIST.orders = null; }
+  catch(e){ toast("실패: " + e.message); }
+};
+$("tsClear").onclick = async () => {
+  try { render(await api("/api/tpsl", {tp_price: 0, sl_price: 0, auto: true})); closeSheets(); toast("TP/SL 모두 해제"); } catch(e){ toast("실패: " + e.message); }
+};
+let csRatio = 0.5;
+function csCalc(){
+  const p = P(); if (!p) return;
+  $("csQ").querySelectorAll("button").forEach(b => b.classList.toggle("on", +b.dataset.r === csRatio));
+  $("csQty").textContent = `${(Math.abs(p.amt) * csRatio).toFixed(4)} BTC`;
+  const est = p.upnl * csRatio; $("csPnl").textContent = (est > 0 ? "+" : "") + fmt(est, 2) + " USDT"; $("csPnl").className = tone(est);
+}
+$("closeOpen").onclick = () => {
+  const p = P(); if (!p) return toast("열린 포지션이 없어요");
+  $("csHead").textContent = `${p.amt > 0 ? "Long" : "Short"} ${Math.abs(p.amt)} BTC`; $("csMark").textContent = fmt(p.mark);
+  $("csStop").checked = false; csCalc(); $("closeSheet").classList.add("open");
+};
+$("csQ").querySelectorAll("button").forEach(b => b.onclick = () => { csRatio = +b.dataset.r; csCalc(); });
+async function doClose(ratio, stop){
+  try { render(await api("/api/close", {ratio, pause: stop})); closeSheets(); toast(ratio >= 1 ? "Close all 완료" : `${Math.round(ratio * 100)}% Close 완료`); HIST = {}; loadHist(hKind, true); loadEquity(); }
+  catch(e){ toast("실패: " + e.message); }
+}
+$("csGo").onclick = () => doClose(csRatio, $("csStop").checked);
+$("closeAll").onclick = () => {
+  const p = P(); if (!p) return toast("열린 포지션이 없어요");
+  if (!confirm(`${p.amt > 0 ? "롱" : "숏"} ${Math.abs(p.amt)} BTC 전량을 시장가로 청산할까요? (TP/SL 도 취소)`)) return;
+  doClose(1, confirm("자동매매도 중지할까요?\n[확인] 중지  ·  [취소] 계속 (다음 09:00 신호대로 다시 진입)"));
+};
+$("pLev").onclick = async () => {
+  const cur = S ? S.settings.leverage : 5, v = prompt(`배율 변경 (1~${MAXLEV()}배)`, cur);
+  if (v == null) return; const n = parseInt(v);
+  if (!(n >= 1 && n <= MAXLEV())) return toast(`1~${MAXLEV()}배까지 가능해요`);
+  try { draft = null; render(await api("/api/settings", {leverage: n})); toast(`배율 ${n}x`); } catch(e){ toast("실패: " + e.message); }
+};
+function renderTPSL(s){
+  const t = s.tpsl || {}, st = s.settings;
+  $("tpslVal").innerHTML = (t.tp || t.sl) ? `TP/SL <b style="margin-left:6px;color:var(--ink)">${t.tp ? fmt(t.tp) : "—"} / ${t.sl ? fmt(t.sl) : "—"}</b>`
+    : (st.tp_pct || st.sl_pct) ? `TP/SL <b style="margin-left:6px;color:var(--ink)">다음 진입 시 자동</b>` : "";
+}
+async function loadRealized(){ if (P()) { try { const r = (await api("/api/history?kind=realized")).data; if (S) { S.realized = r; render(S); } } catch(e){} } }
+
+// ───── History ─────
+let hKind = "positions", HIST = {}, calMonth = null;
+const ts = ms => { const d = new Date(ms); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const histEl = k => k === "calendar" ? $("calBody") : $("hBody");
+async function loadHist(kind, force){
+  if (kind !== "calendar") hKind = kind;
+  if (!HIST[kind] || force) {
+    histEl(kind).innerHTML = '<div class="muted">불러오는 중… (처음엔 몇 초 걸려요)</div>';
+    try { HIST[kind] = (await api("/api/history?kind=" + kind)).data; } catch(e){ histEl(kind).innerHTML = `<div class="muted">오류: ${esc(e.message)}</div>`; return; }
+  }
+  renderHist(kind);
+}
+function renderHist(kind){
+  kind = kind || hKind; const hKind_ = kind;
+  const d = HIST[kind];
+  if (hKind_ === "orders") {
+    $("hBody").innerHTML = d.length ? d.map(o => `<div class="it"><div><b class="${o.side === "BUY" ? "up" : "down"}">${o.side === "BUY" ? "매수" : "매도"}</b> ${esc(o.type.replace("_MARKET", "").replace("TAKE_PROFIT", "TP").replace("STOP", "SL"))}${o.reduce ? " · 청산" : ""}${o.bot ? "" : " · 수동"}
+      <small>${o.time ? ts(o.time) : ""} · ${esc(o.status)}</small></div><div style="text-align:right"><b>${o.qty ? o.qty + " BTC" : ""}</b><small>${o.price ? fmt(o.price) : ""}</small></div></div>`).join("") : '<div class="muted">주문 기록이 없어요</div>';
+  } else if (hKind_ === "positions") {
+    $("hBody").innerHTML = d.length ? d.map((p, i) => `<div class="it"><div><b class="${p.side > 0 ? "up" : "down"}">${p.side > 0 ? "Long" : "Short"}</b> ${p.qty} BTC
+      <small>${ts(p.open)} → ${ts(p.close)}</small><small>${fmt(p.entry)} → ${fmt(p.exit)}</small></div>
+      <div style="display:flex;align-items:center;gap:8px"><div style="text-align:right"><b class="${tone(p.net)}">${p.net > 0 ? "+" : ""}${fmt(p.net, 2)}</b><small class="${tone(p.roi)}">${pct(p.roi)}</small></div>
+      <button class="cam" data-i="${i}">📷</button></div></div>`).join("") : '<div class="muted">종료된 포지션이 아직 없어요 (최근 90일)</div>';
+    $("hBody").querySelectorAll(".cam").forEach(b => b.onclick = () => { const p = HIST.positions[+b.dataset.i];
+      pnlCard({side: p.side, lev: p.lev, roi: p.roi, pnl: p.net, entry: p.entry, last: p.exit, lastLabel: "청산가", tag: "CLOSED", time: p.close}); });
+  } else {
+    const days = d || {}, now = new Date();
+    if (!calMonth) calMonth = [now.getFullYear(), now.getMonth()];
+    const [y, m] = calMonth, first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate();
+    let tot = 0, cells = "";
+    for (let i = 0; i < first; i++) cells += "<div></div>";
+    for (let dd = 1; dd <= n; dd++) {
+      const key = `${y}-${String(m + 1).padStart(2, "0")}-${String(dd).padStart(2, "0")}`, v = days[key];
+      if (v) tot += v;
+      const today = y === now.getFullYear() && m === now.getMonth() && dd === now.getDate();
+      cells += `<div class="d ${v > 0 ? "p" : v < 0 ? "m" : ""} ${today ? "today" : ""}"><div class="n">${dd}</div>${v ? `<b class="${tone(v)}">${v > 0 ? "+" : ""}${Math.abs(v) >= 100 ? Math.round(v) : v.toFixed(1)}</b>` : ""}</div>`;
+    }
+    $("calBody").innerHTML = `<div class="calh"><button id="cPrev">‹</button><b>${y}년 ${m + 1}월 · <span class="${tone(tot)}">${tot > 0 ? "+" : ""}${fmt(tot, 2)} USDT</span></b><button id="cNext">›</button></div>
+      <div class="cal">${["일","월","화","수","목","금","토"].map(x => `<div class="dow">${x}</div>`).join("")}${cells}</div>
+      <p class="muted" style="font-size:11px;margin:6px 0 0">실현손익 + 수수료 + 펀딩비, 한국시간 기준 · 최근 90일까지</p>`;
+    $("cPrev").onclick = () => { calMonth = m === 0 ? [y - 1, 11] : [y, m - 1]; renderHist("calendar"); };
+    $("cNext").onclick = () => { calMonth = m === 11 ? [y + 1, 0] : [y, m + 1]; renderHist("calendar"); };
+  }
+}
+// ───── 탭 이동 (KBTC · Trade · Assets) ─────
+function go(t){
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x.id === "tab-" + t));
+  document.querySelectorAll("#bnav button").forEach(b => b.classList.toggle("on", b.dataset.go === t));
+  try { localStorage.setItem("kbtc_tab", t); } catch(e){}
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
+let startTab = "kbtc"; try { startTab = localStorage.getItem("kbtc_tab") || "kbtc"; } catch(e){}
+go(["kbtc", "trade", "assets"].includes(startTab) ? startTab : "kbtc");
+document.querySelectorAll("#tTabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#tTabs button").forEach(x => x.classList.toggle("on", x === b));
+  const t = b.dataset.t; $("tPos").style.display = t === "pos" ? "" : "none"; $("hBody").style.display = t === "pos" ? "none" : "";
+  if (t !== "pos") loadHist(t === "orders" ? "orders" : "positions");
+});
+document.querySelectorAll("[data-qa]").forEach(b => b.onclick = () => {
+  const k = b.dataset.qa;
+  if (k === "api") $("apiSheet").classList.add("open"); else if (k === "help") $("helpSheet").classList.add("open"); else $("shareCur").click();
+});
+let EQ = null;
+function spark(id, vals){
+  if (!vals || vals.length < 2) return;
+  const lo = Math.min(...vals), hi = Math.max(...vals) || 1, r = (hi - lo) || 1, up = vals[vals.length - 1] >= vals[0];
+  const pts = vals.map((v, i) => `${(i / (vals.length - 1) * 120).toFixed(1)},${(46 - (v - lo) / r * 42).toFixed(1)}`).join(" ");
+  $(id).innerHTML = `<polyline points="${pts}" fill="none" stroke="${up ? "#3ecf7a" : "#ff5f7e"}" stroke-width="1.8" stroke-linejoin="round"/>`;
+}
+function renderToday(eq){
+  if (!EQ || EQ.length < 2) return;
+  const prev = EQ[EQ.length - 2][1], ch = eq - prev, t = `${ch > 0 ? "+" : ""}${fmt(ch, 2)} (${pct(prev ? ch / prev * 100 : 0)})`;
+  for (const id of ["today1", "today2"]) { $(id).textContent = t; $(id).className = tone(ch); }
+}
+
+// ───── 계좌 그래프 ─────
+let EQP = "1M"; try { EQP = localStorage.getItem("kbtc_eqp") || "1M"; } catch(e){}
+async function loadEquity(){
+  try {
+    const [d, sn] = await Promise.all([api("/api/history?kind=equity"), api("/api/history?kind=snaps")]);
+    HIST.equity = d.data; HIST.snaps = sn.data;
+    const ed = HIST.equity; if (ed && ed.length >= 2) { EQ = ed; const sv = ed.slice(-30).map(x => x[1]); spark("spark1", sv); spark("spark2", sv); if (S && S.acct) renderToday(S.acct.equity); }
+    drawEquity();
+  } catch(e){}
+}
+function drawEquity(){
+  document.querySelectorAll("#eqPer button").forEach(b => b.classList.toggle("on", b.dataset.p === EQP));
+  const days = {"1W": 7, "1M": 30, "6M": 182, "1Y": 365}[EQP], now = Date.now();
+  let pts;  // [[ms, value], ...]
+  const sn = (HIST.snaps || []).filter(x => x[0] >= now - (EQP === "1D" ? 864e5 : 7 * 864e5));
+  if ((EQP === "1D" || EQP === "1W") && sn.length >= 2) pts = sn.slice();
+  else pts = (HIST.equity || []).map(x => [new Date(x[0] + "T00:00:00").getTime(), x[1]]).filter(x => x[0] >= now - (days || 1) * 864e5);
+  if (S && S.acct && pts.length) pts.push([now, S.acct.equity]);
+  if (pts.length < 2) { $("eqChart").innerHTML = '<text x="180" y="75" text-anchor="middle" font-size="11" fill="#9ea2aa">데이터를 모으는 중이에요 (5분마다 기록)</text>'; $("eqChg").textContent = ""; return; }
+  const W = 360, H = 150, L = 46, R = W - 6, T = 8, B = H - 18, vals = pts.map(x => x[1]), t0 = pts[0][0], t1 = pts[pts.length - 1][0];
+  let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 1) { lo -= 1; hi += 1; }
+  const X = t => L + (t - t0) / Math.max(1, t1 - t0) * (R - L), Y = v => B - (v - lo) / (hi - lo) * (B - T);
+  const lab = t => { const d = new Date(t); return EQP === "1D" ? `${pad2(d.getHours())}:${pad2(d.getMinutes())}` : `${pad2(d.getMonth() + 1)}/${pad2(d.getDate())}`; };
+  let g = "";
+  for (let k = 0; k <= 3; k++) { const v = lo + (hi - lo) * k / 3;
+    g += `<line x1="${L}" x2="${R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#24272e" stroke-width=".6"/><text x="${L - 4}" y="${Y(v) + 3}" text-anchor="end" font-size="8.5" fill="#9ea2aa">${Math.round(v).toLocaleString()}</text>`; }
+  [[t0, "start"], [(t0 + t1) / 2, "middle"], [t1, "end"]].forEach(([t, a]) => g += `<text x="${X(t)}" y="${H - 4}" text-anchor="${a}" font-size="8.5" fill="#9ea2aa">${lab(t)}</text>`);
+  const up = vals[vals.length - 1] >= vals[0], col = up ? "#3ecf7a" : "#ff5f7e";
+  const line = pts.map(([t, v]) => `${X(t).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+  g += `<defs><linearGradient id="eqG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".35"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>`;
+  g += `<polygon points="${L},${B} ${line} ${R},${B}" fill="url(#eqG)"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round"/>`;
+  $("eqChart").innerHTML = g;
+  const ch = vals[vals.length - 1] - vals[0];
+  $("eqChg").innerHTML = `<span class="muted">${EQP} 변화</span> <b class="${tone(ch)}">${ch > 0 ? "+" : ""}${fmt(ch, 2)} (${pct(ch / vals[0] * 100)})</b>`;
+}
+document.querySelectorAll("#eqPer button").forEach(b => b.onclick = e => { e.stopPropagation(); EQP = b.dataset.p; try { localStorage.setItem("kbtc_eqp", EQP); } catch(_){} drawEquity(); });
+
+// ───── PNL 카드 이미지 ─────
+const ICON = new Image(); ICON.src = "/icon.png";
+let CARD = null, CARD_MODE = "both";
+try { CARD_MODE = localStorage.getItem("kbtc_card") || "both"; } catch(e){}
+$("shareCur").onclick = () => {
+  const p = S && S.pos; if (!p || !p.amt) return toast("열린 포지션이 없어요");
+  const margin = Math.abs(p.amt) * p.entry / p.lev;
+  openCard({side: p.amt > 0 ? 1 : -1, lev: p.lev, roi: margin ? p.upnl / margin * 100 : 0, pnl: p.upnl, entry: p.entry, last: p.mark, lastLabel: "Mark price", tag: "OPEN", time: Date.now()});
+};
+function pnlCard(o){ openCard(Object.assign({}, o, {lastLabel: "Close price"})); }
+async function openCard(o){
+  CARD = o; $("cardSheet").classList.add("open");
+  document.querySelectorAll("#cardMode button").forEach(b => b.classList.toggle("on", b.dataset.m === CARD_MODE));
+  await drawCard();
+}
+document.querySelectorAll("#cardMode button").forEach(b => b.onclick = () => { CARD_MODE = b.dataset.m; try { localStorage.setItem("kbtc_card", CARD_MODE); } catch(e){}
+  document.querySelectorAll("#cardMode button").forEach(x => x.classList.toggle("on", x === b)); drawCard(); });
+async function drawCard(){
+  const c = await renderCard(CARD, CARD_MODE); $("cardPrev").src = c.toDataURL("image/png"); $("cardPrev")._c = c;
+}
+$("cardSave").onclick = async () => {
+  const c = $("cardPrev")._c; if (!c) return;
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  const file = new File([blob], `KBTC_PNL_${Date.now()}.png`, {type: "image/png"});
+  if (navigator.canShare && navigator.canShare({files: [file]})) { try { await navigator.share({files: [file], title: "KBTC PNL"}); return; } catch(e){ if (e.name === "AbortError") return; } }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = file.name; a.click(); toast("PNL 카드 저장");
+};
+let QRLIB = null;
+function loadQR(){
+  if (QRLIB) return QRLIB;
+  return QRLIB = new Promise(res => { const sc = document.createElement("script");
+    sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"; sc.onload = () => res(window.qrcode); sc.onerror = () => res(null); document.head.appendChild(sc); });
+}
+async function renderCard(o, mode){
+  const W = 1080, H = 1660, c = document.createElement("canvas"); c.width = W; c.height = H; const x = c.getContext("2d");
+  const up = o.roi >= 0, NEON = up ? "#39ff9c" : "#ff3d9a", NEON2 = up ? "#1fd97a" : "#ff6fb5";
+  const F = (w, sz) => `${w} ${sz}px -apple-system, "SF Pro Display", "Apple SD Gothic Neo", sans-serif`;
+  x.fillStyle = "#000"; x.fillRect(0, 0, W, H);
+  // 상단: 로고 + 시각
+  try { await ICON.decode(); x.save(); x.beginPath(); x.arc(110, 108, 38, 0, Math.PI * 2); x.clip(); x.drawImage(ICON, 72, 70, 76, 76); x.restore(); } catch(e){}
+  x.fillStyle = "#fff"; x.font = F(900, 46); x.fillText("K₿TC", 162, 124);
+  const d = new Date(o.time), z = n => String(n).padStart(2, "0");
+  x.fillStyle = "#8b8f98"; x.font = F(500, 26); x.textAlign = "right";
+  x.fillText(`${z(d.getMonth() + 1)}/${z(d.getDate())}/${d.getFullYear()}, ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())} (UTC+9)`, W - 72, 118); x.textAlign = "left";
+  // 아트워크: 엠블럼 + 네온 링 + 심전도 라인
+  const cx = 690, cy = 470, R = 220;
+  const halo = x.createRadialGradient(cx, cy, 40, cx, cy, 420); halo.addColorStop(0, up ? "rgba(57,255,156,.20)" : "rgba(255,61,154,.20)"); halo.addColorStop(1, "rgba(0,0,0,0)");
+  x.fillStyle = halo; x.fillRect(0, 150, W, 700);
+  const ring = (back) => { x.save(); x.translate(cx, cy); x.rotate(-0.18); x.beginPath();
+    x.ellipse(0, 0, R + 120, 70, 0, back ? Math.PI : 0, back ? Math.PI * 2 : Math.PI);
+    x.strokeStyle = NEON; x.lineWidth = 12; x.shadowColor = NEON; x.shadowBlur = 40; x.stroke(); x.shadowBlur = 0; x.lineWidth = 4; x.strokeStyle = "#fff"; x.globalAlpha = .7; x.stroke(); x.restore(); };
+  ring(true);
+  try { x.save(); x.shadowColor = "rgba(255,255,255,.18)"; x.shadowBlur = 60; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.clip();
+    x.drawImage(ICON, cx - R, cy - R, R * 2, R * 2); x.restore();
+    const gl = x.createLinearGradient(cx - R, cy - R, cx + R, cy + R); gl.addColorStop(0, "rgba(255,255,255,.22)"); gl.addColorStop(.45, "rgba(255,255,255,0)"); gl.addColorStop(1, "rgba(0,0,0,.35)");
+    x.fillStyle = gl; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.fill(); } catch(e){}
+  ring(false);
+  // 심전도(수익 = 위로, 손실 = 아래로)
+  const pts = up ? [[380, 560], [470, 560], [520, 600], [580, 380], [640, 640], [700, 470], [760, 470], [830, 300]] :
+                   [[380, 440], [470, 440], [520, 400], [580, 620], [640, 360], [700, 520], [760, 520], [830, 690]];
+  x.save(); x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b));
+  x.strokeStyle = NEON; x.lineWidth = 10; x.lineJoin = "round"; x.shadowColor = NEON; x.shadowBlur = 36; x.stroke();
+  x.shadowBlur = 0; x.strokeStyle = "#fff"; x.lineWidth = 3.5; x.stroke();
+  const [ex, ey] = pts[pts.length - 1]; x.beginPath(); x.arc(ex, ey, 13, 0, Math.PI * 2); x.fillStyle = "#fff"; x.shadowColor = NEON; x.shadowBlur = 30; x.fill(); x.restore();
+  for (const [sx, sy, sz] of [[300, 260, 16], [960, 650, 12], [520, 760, 10], [920, 230, 9]]) {
+    x.save(); x.translate(sx, sy); x.rotate(Math.PI / 4); x.fillStyle = "#cfd3da"; x.globalAlpha = .55; x.fillRect(-sz / 2, -sz / 2, sz, sz); x.restore(); }
+  // 종목
+  x.fillStyle = "#fff"; x.font = F(600, 58); x.fillText("BTCUSDT Perpetual", 72, 930);
+  x.fillStyle = "#8b8f98"; x.font = F(500, 34); x.fillText(`${o.side > 0 ? "Long" : "Short"} · ${o.lev}x · Cross${o.tag === "OPEN" ? "" : " · Closed"}`, 72, 985);
+  // 수익
+  const pnlTxt = `${o.pnl >= 0 ? "+" : "-"}$${Math.abs(o.pnl).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+  const roiTxt = `${o.roi >= 0 ? "+" : ""}${o.roi.toFixed(2)}%`;
+  x.fillStyle = NEON2; x.shadowColor = NEON; x.shadowBlur = 0;
+  let y = 1135;
+  if (mode === "pnl") { x.font = F(800, 132); x.fillText(pnlTxt, 66, y); }
+  else { x.font = F(800, 150); x.fillText(roiTxt, 64, y); if (mode === "both") { x.font = F(600, 48); x.fillText(pnlTxt, 72, y + 72); } }
+  // 가격
+  const py = mode === "both" ? 1300 : 1250;
+  x.fillStyle = "#8b8f98"; x.font = F(500, 34); x.fillText("Entry price", 72, py); x.fillText(o.lastLabel, 560, py);
+  x.fillStyle = "#fff"; x.font = F(600, 42);
+  x.fillText("$" + o.entry.toLocaleString("en-US", {minimumFractionDigits: 1, maximumFractionDigits: 1}), 72, py + 56);
+  x.fillText("$" + o.last.toLocaleString("en-US", {minimumFractionDigits: 1, maximumFractionDigits: 1}), 560, py + 56);
+  // 하단
+  x.strokeStyle = "#26282e"; x.lineWidth = 2; x.beginPath(); x.moveTo(0, 1430); x.lineTo(W, 1430); x.stroke();
+  try { x.save(); x.beginPath(); x.arc(126, 1545, 54, 0, Math.PI * 2); x.clip(); x.drawImage(ICON, 72, 1491, 108, 108); x.restore(); } catch(e){}
+  x.fillStyle = "#fff"; x.font = F(500, 38); x.fillText("KOREA BITCOIN", 208, 1530);
+  x.font = F(700, 34); x.fillText("Lv.1 50일선 퀀트 트레이딩", 208, 1580);
+  const q = await loadQR();
+  if (q) { const qr = q(0, "M"); qr.addData(location.origin); qr.make(); const n = qr.getModuleCount(), sz = 150, cell = sz / n, qx = W - 72 - sz - 16, qy = 1470;
+    x.fillStyle = "#fff"; x.beginPath(); x.roundRect(qx - 12, qy - 12, sz + 24, sz + 24, 14); x.fill(); x.fillStyle = "#000";
+    for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (qr.isDark(r, k)) x.fillRect(qx + k * cell, qy + r * cell, Math.ceil(cell), Math.ceil(cell)); }
+  return c;
+}
+
+// ───── Analysis (OKX 스타일) ─────
+const AN = {tab: "assets", period: 30, perf: "pnl", dmode: "cal", fmode: "rank", month: null};
+const pad2 = n => String(n).padStart(2, "0");
+const dk = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const lastDays = n => { const t = new Date(), out = []; for (let i = n - 1; i >= 0; i--) { const d = new Date(t); d.setDate(t.getDate() - i); out.push(dk(d)); } return out; };
+const kfmt = v => Math.abs(v) >= 1000 ? (v / 1000).toFixed(2) + "K" : (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2));
+const mdY = k => `${k.slice(5, 7)}/${k.slice(8)}/${k.slice(0, 4)}`;
+const sgn = v => (v > 0 ? "+" : v < 0 ? "-" : "") + fmt(Math.abs(v), 2);
+async function need(...kinds){
+  await Promise.all(kinds.map(async k => { if (!HIST[k]) { try { HIST[k] = (await api("/api/history?kind=" + k)).data; } catch(e){ HIST[k] = (k === "positions" || k === "equity") ? [] : {}; } } }));
+}
+async function loadAnSummary(){
+  await need("calendar", "positions");
+  const days = HIST.calendar || {}, v = lastDays(30).reduce((a, k) => a + (days[k] || 0), 0);
+  $("an30").textContent = sgn(v); $("an30").className = tone(v);
+  const t0 = Date.now() - 30 * 864e5, ps = (HIST.positions || []).filter(p => p.close >= t0);
+  $("anPos").textContent = ps.length; $("anWin").textContent = ps.length ? (ps.filter(p => p.net > 0).length / ps.length * 100).toFixed(2) + "%" : "—";
+}
+function areaChart(id, vals, keys, yf, zero, mini){
+  const W = 360, H = 190, L = mini ? 2 : 48, R = W - 4, T = mini ? 6 : 10, B = mini ? H - 6 : H - 24;
+  if (!vals.length) { $(id).innerHTML = ""; return; }
+  let lo = Math.min(...vals, ...(zero ? [0] : [])), hi = Math.max(...vals, ...(zero ? [0] : []));
+  if (hi - lo < 1e-9) { hi += 1; lo -= 1; }
+  const X = i => L + (vals.length < 2 ? 0 : i / (vals.length - 1)) * (R - L), Y = v => B - (v - lo) / (hi - lo) * (B - T);
+  const last = vals[vals.length - 1], col = (zero ? last >= 0 : last >= vals[0]) ? "#3ecf7a" : "#ff5f7e";
+  let g = `<defs><linearGradient id="${id}G" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".45"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>`;
+  if (!mini) { for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4;
+      g += `<line x1="${L}" x2="${R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#24272e" stroke-width=".7"/><text x="${L - 6}" y="${Y(v) + 3}" text-anchor="end" font-size="9" fill="#9ea2aa">${yf(v)}</text>`; }
+    g += `<text x="${L}" y="${H - 6}" font-size="9" fill="#9ea2aa">${mdY(keys[0])}</text><text x="${R}" y="${H - 6}" text-anchor="end" font-size="9" fill="#9ea2aa">${mdY(keys[keys.length - 1])}</text>`; }
+  const pts = vals.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" "), base = zero ? Y(0) : B;
+  g += `<polygon points="${X(0)},${base} ${pts} ${X(vals.length - 1)},${base}" fill="url(#${id}G)"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="${mini ? 2.6 : 2}" stroke-linejoin="round"/>`;
+  $(id).innerHTML = g;
+}
+function barsHTML(vals, keys){
+  const W = 360, H = 170, L = 6, R = W - 6, T = 8, B = H - 22, m = Math.max(1e-9, ...vals.map(Math.abs)), mid = (T + B) / 2;
+  const w = (R - L) / vals.length;
+  let g = `<line x1="${L}" x2="${R}" y1="${mid}" y2="${mid}" stroke="#33363d" stroke-width=".7"/>`;
+  vals.forEach((v, i) => { const h = Math.abs(v) / m * (B - T) / 2; if (!v) return;
+    g += `<rect x="${(L + i * w + w * .15).toFixed(1)}" y="${(v > 0 ? mid - h : mid).toFixed(1)}" width="${(w * .7).toFixed(1)}" height="${Math.max(1, h).toFixed(1)}" rx="1.5" fill="${v > 0 ? "#3ecf7a" : "#ff5f7e"}"/>`; });
+  g += `<text x="${L}" y="${H - 6}" font-size="9" fill="#9ea2aa">${mdY(keys[0])}</text><text x="${R}" y="${H - 6}" text-anchor="end" font-size="9" fill="#9ea2aa">${mdY(keys[keys.length - 1])}</text>`;
+  return `<svg class="ch" viewBox="0 0 360 170" style="margin-top:8px">${g}</svg>`;
+}
+function calHTML(days, title){
+  const [y, m] = AN.month, first = new Date(y, m, 1).getDay(), n = new Date(y, m + 1, 0).getDate(), today = dk(new Date());
+  let cells = ""; for (let i = 0; i < first; i++) cells += "<div></div>";
+  for (let d = 1; d <= n; d++) { const k = `${y}-${pad2(m + 1)}-${pad2(d)}`, v = days[k], fut = k > today;
+    cells += `<div class="cd ${v > 0 ? "p" : v < 0 ? "m" : ""} ${k === today ? "today" : ""} ${fut ? "fut" : ""}"><b>${d}</b>${v ? `<small class="${tone(v)}">${v > 0 ? "+" : ""}${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(2)}</small>` : ""}</div>`; }
+  const mon = new Date(y, m, 1).toLocaleString("en-US", {month: "short"});
+  return `<div class="ctr">${title ? `<h3 class="ct">${title}</h3>` : "<span></span>"}<div class="mnav"><button data-nav="-1">‹</button><span>${mon} ${y}</span><button data-nav="1">›</button></div></div>
+    <div class="cal2">${["SUN","MON","TUE","WED","THU","FRI","SAT"].map(x => `<div class="dw">${x}</div>`).join("")}${cells}</div>`;
+}
+function renderAnalysis(){
+  if (!AN.month) { const t = new Date(); AN.month = [t.getFullYear(), t.getMonth()]; }
+  document.querySelectorAll("#anTabs button").forEach(b => b.classList.toggle("on", b.dataset.t === AN.tab));
+  document.querySelectorAll(".anp").forEach(b => b.classList.toggle("on", +b.dataset.p === AN.period));
+  document.querySelectorAll("#perfSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === AN.perf));
+  document.querySelectorAll("#dSeg button").forEach(b => b.classList.toggle("on", b.dataset.m === AN.dmode));
+  document.querySelectorAll("#fTabs button").forEach(b => b.classList.toggle("on", b.dataset.m === AN.fmode));
+  $("anAssets").style.display = AN.tab === "assets" ? "" : "none"; $("anFut").style.display = AN.tab === "fut" ? "" : "none";
+  const days = HIST.calendar || {};
+  let per = AN.period;
+  if (!per) { const all = [...Object.keys(days), ...(HIST.equity || []).map(x => x[0])].sort(); per = all.length ? Math.max(2, Math.round((Date.now() - new Date(all[0] + "T00:00:00")) / 864e5) + 1) : 90; }
+  const keys = lastDays(per), daily = keys.map(k => days[k] || 0);
+  let c = 0; const cum = daily.map(v => c += v), today = dk(new Date());
+  const eqMap = Object.fromEntries(HIST.equity || []), eqv = keys.filter(k => k in eqMap).map(k => eqMap[k]);
+  const start = eqv.length ? eqv[0] : (S && S.acct ? S.acct.equity - c : 0);
+  // Performance
+  if (AN.perf === "asset") { const ek = keys.filter(k => k in eqMap);
+    $("perfLbl").textContent = "Total assets (USDT)"; $("perfVal").textContent = fmt(eqv[eqv.length - 1] || (S && S.acct ? S.acct.equity : 0), 2); $("perfVal").className = "big";
+    areaChart("perfChart", eqv, ek.length ? ek : keys, kfmt, false); }
+  else if (AN.perf === "pct") { const v = cum.map(x => start ? x / start * 100 : 0);
+    $("perfLbl").textContent = "Cumulative PnL%"; $("perfVal").textContent = pct(v[v.length - 1] || 0); $("perfVal").className = "big " + tone(c);
+    areaChart("perfChart", v, keys, x => x.toFixed(2) + "%", true); }
+  else { $("perfLbl").textContent = "Cumulative PnL (USDT)"; $("perfVal").textContent = sgn(c); $("perfVal").className = "big " + tone(c);
+    areaChart("perfChart", cum, keys, kfmt, true); }
+  // Daily PnL
+  $("dLbl").textContent = `PnL as of ${mdY(today)}`; const tv = days[today] || 0; $("dVal").textContent = sgn(tv); $("dVal").className = "big " + tone(tv);
+  $("dailyBody").innerHTML = AN.dmode === "cal" ? calHTML(days, "") : barsHTML(daily, keys);
+  // Futures PnL
+  $("fTot").textContent = sgn(c); $("fTot").className = "big " + tone(c);
+  $("fToday").textContent = sgn(tv); $("fToday").className = tone(tv);
+  areaChart("futChart", cum, keys, kfmt, true, true);
+  const t0 = AN.period ? Date.now() - AN.period * 864e5 : 0, ps = (HIST.positions || []).filter(p => p.close >= t0);
+  const wins = ps.filter(p => p.net > 0), loss = ps.filter(p => p.net < 0), avg = a => a.reduce((x, p) => x + Math.abs(p.net), 0) / (a.length || 1);
+  $("fWin").textContent = ps.length ? (wins.length / ps.length * 100).toFixed(2) + "%" : "—";
+  $("fPos").textContent = ps.length; $("fRR").textContent = wins.length && loss.length ? `1:${(avg(wins) / avg(loss)).toFixed(2)}` : "—";
+  $("futCal").innerHTML = calHTML(days, "Trading calendar");
+  if (AN.fmode === "rank") {
+    $("fList").innerHTML = `<div class="it"><div style="display:flex;gap:10px;align-items:center"><div class="coin">${document.querySelector(".mrow .coin").innerHTML}</div><div><b>BTCUSDT</b> <span class="perp">Perp</span><small>${ps.length} positions</small></div></div><b class="${tone(c)}">${sgn(c)}</b></div>`;
+  } else {
+    const fd = HIST.funding || {}, fk = keys.filter(k => fd[k]).reverse(), ft = fk.reduce((a, k) => a + fd[k], 0);
+    $("fList").innerHTML = `<div class="it"><b>Total</b><b class="${tone(ft)}">${sgn(ft)} USDT</b></div>` + (fk.map(k => `<div class="it"><span class="muted">${mdY(k)}</span><b class="${tone(fd[k])}">${sgn(fd[k])}</b></div>`).join("") || '<div class="muted" style="padding:8px 0">펀딩비 기록이 없어요</div>');
+  }
+}
+async function openAnalysis(tab){
+  AN.tab = tab || AN.tab; $("analysis").classList.add("on"); document.body.style.overflow = "hidden"; renderAnalysis();
+  await need("calendar", "positions", "equity", "funding"); renderAnalysis();
+}
+document.querySelectorAll("[data-an]").forEach(el => el.addEventListener("click", () => openAnalysis(el.dataset.an)));
+$("anBack").onclick = () => { $("analysis").classList.remove("on"); document.body.style.overflow = ""; };
+$("analysis").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.nav) { const [y, m] = AN.month, d = new Date(y, m + +b.dataset.nav, 1); AN.month = [d.getFullYear(), d.getMonth()]; }
+  else if (b.closest("#anTabs")) AN.tab = b.dataset.t;
+  else if (b.classList.contains("anp")) AN.period = +b.dataset.p;
+  else if (b.closest("#perfSeg")) AN.perf = b.dataset.m;
+  else if (b.closest("#dSeg")) AN.dmode = b.dataset.m;
+  else if (b.closest("#fTabs")) AN.fmode = b.dataset.m;
+  else return;
+  renderAnalysis();
+});
+$("btHead").onclick = () => { const o = $("btBody").style.display === "none"; $("btBody").style.display = o ? "" : "none"; $("btArrow").textContent = o ? "접기 ▴" : "펼치기 ▾"; };
+
+if (location.hash === "#help") $("helpSheet").classList.add("open");
+load(); setInterval(() => { if ($("app").style.display === "block") load(); }, 5000);
+</script>
+</body>
+</html>
