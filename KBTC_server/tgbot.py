@@ -4,12 +4,15 @@
 - /start, /help: 사용법 안내 + 버튼 패널
 - 버튼(인라인 키보드)으로 상태·신호·포지션·설정·중지/시작·백테스트
 - 명령: /status /signal /position /settings /pause /resume /weight 20 /lev 5 /persona 테토 /backtest /app /users
+- /brief: 포지션 브리핑 일정 (몇 시간마다 or 정해진 시각). state.json overrides.brief 에 저장
 TELEGRAM_CHAT_ID 가 비어 있으면 /start 보낸 채팅의 ID 를 알려준다. 다른 채팅은 무시.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -25,6 +28,7 @@ COMMANDS = [
     ("signal", "📈 오늘 신호와 근거"),
     ("position", "💼 내 포지션·계좌"),
     ("settings", "⚙️ 비중·배율·말투 보기/변경"),
+    ("brief", "⏰ 포지션 브리핑 일정"),
     ("pause", "⏸ 퀀트 트레이딩 중지"),
     ("resume", "▶️ 퀀트 트레이딩 시작"),
     ("backtest", "📉 배율별 백테스트 요약"),
@@ -57,6 +61,7 @@ HELP = """🇰🇷 KBTC 사용법
 /signal  오늘 신호와 근거
 /position  포지션·계좌
 /settings  비중·배율·말투
+/brief  포지션 브리핑 일정 (/brief 4h, /brief 9 21, /brief off)
 /pause · /resume  중지 · 시작
 /weight 20  비중 20%로
 /lev 5  배율 5배로
@@ -80,7 +85,7 @@ def panel(ctx):
         [{"text": "📊 상태", "callback_data": "status"}, {"text": "📈 신호", "callback_data": "signal"},
          {"text": "💼 포지션", "callback_data": "position"}],
         [{"text": "▶️ 퀀트 트레이딩 시작" if paused else "⏸ 중지", "callback_data": "resume" if paused else "pause"},
-         {"text": "⚙️ 설정", "callback_data": "settings"}],
+         {"text": "⚙️ 설정", "callback_data": "settings"}, {"text": "⏰ 브리핑", "callback_data": "brief"}],
         [{"text": "📉 백테스트", "callback_data": "backtest"}] + ([{"text": "📱 앱 열기", "url": APP_URL}] if APP_URL else []),
     ]}
 
@@ -180,6 +185,100 @@ def text_backtest(ctx):
             f"\n\nBTC 그냥 보유: {d['hold']:.1f}배\n💡 추천: 배율 3~5배. 과거 결과일 뿐 미래를 보장하지 않아요.\n자세한 표·차트는 📱 앱에서 볼 수 있어요.")
 
 
+# ───────────────────────── 포지션 브리핑 일정 ─────────────────────────
+EVERY = (1, 2, 4, 6, 8, 12)
+
+
+def brief_cfg(ctx):
+    return ctx.st.get("overrides", {}).get("brief") or {"mode": "off"}
+
+
+def brief_slots(b):
+    """브리핑 시각 집합 {"HH:MM", ...} (서버 TZ=Asia/Seoul 기준). 'N시간마다'는 00시 기준 정각."""
+    if b.get("mode") == "every":
+        n = int(b["hours"])
+        return {f"{h:02d}:00" for h in range(0, 24, n)}
+    if b.get("mode") == "at":
+        return set(b.get("times", []))
+    return set()
+
+
+def brief_desc(b):
+    if b.get("mode") == "every":
+        return f"{b['hours']}시간마다 (" + ", ".join(sorted(brief_slots(b))) + ")"
+    if b.get("mode") == "at":
+        return "매일 " + ", ".join(sorted(b["times"]))
+    return "꺼짐"
+
+
+def parse_brief(args):
+    """'off' | '4h' / '4시간' | '9 21' / '09:00 21:30' → brief 설정 dict"""
+    a = " ".join(args).strip().lower()
+    if a in ("off", "끄기", "끔", "0"):
+        return {"mode": "off"}
+    m = re.fullmatch(r"(\d+)\s*(h|시간|시간마다)", a)
+    if m:
+        n = int(m.group(1))
+        if n not in EVERY and not (1 <= n <= 24 and 24 % n == 0):
+            raise ValueError("시간 간격은 1, 2, 3, 4, 6, 8, 12, 24 중에서 골라 주세요")
+        return {"mode": "every", "hours": n}
+    times = []
+    for t in re.split(r"[\s,]+", a):
+        m = re.fullmatch(r"(\d{1,2})(?:[:시](\d{1,2})?분?)?", t)
+        if not m or not 0 <= int(m.group(1)) <= 23 or not 0 <= int(m.group(2) or 0) <= 59:
+            raise ValueError(f"'{t}' 를 시각으로 못 읽었어요. 예) /brief 9 21  ·  /brief 08:30 22:00")
+        times.append(f"{int(m.group(1)):02d}:{int(m.group(2) or 0):02d}")
+    if not times:
+        raise ValueError("예) /brief 4h  ·  /brief 9 21  ·  /brief off")
+    return {"mode": "at", "times": sorted(set(times))}
+
+
+def set_brief(ctx, b):
+    with bot.LOCK:
+        ctx.st.setdefault("overrides", {})["brief"] = b
+    bot.save_state(ctx.st)
+    bot.log(f"브리핑 일정 변경: {brief_desc(b)}")
+
+
+def text_brief(ctx):
+    return (f"⏰ 포지션 브리핑 일정\n\n지금: {brief_desc(brief_cfg(ctx))}\n\n"
+            "아래 버튼으로 간격을 고르거나, 시각을 직접 입력하세요.\n"
+            "• /brief 4h  → 4시간마다 (00·04·08·12·16·20시)\n"
+            "• /brief 9 21  → 매일 09:00, 21:00\n"
+            "• /brief 08:30 22:00  → 분 단위도 가능\n"
+            "• /brief off  → 끄기\n\n"
+            "09:00 매매 판단 알림은 이 설정과 상관없이 항상 와요.")
+
+
+def brief_kb(ctx):
+    b = brief_cfg(ctx)
+    mark = lambda ok, t: ("✅ " if ok else "") + t
+    every = [{"text": mark(b.get("mode") == "every" and b.get("hours") == n, f"{n}시간"), "callback_data": f"b:{n}h"} for n in EVERY]
+    return {"inline_keyboard": [every[:3], every[3:],
+                                [{"text": mark(b.get("mode") == "at" and b.get("times") == ["09:00", "21:00"], "09·21시"), "callback_data": "b:9 21"},
+                                 {"text": mark(b.get("mode") == "off", "끄기"), "callback_data": "b:off"}],
+                                [{"text": "← 메뉴", "callback_data": "menu"}]]}
+
+
+def brief_loop(ctx):
+    """정해진 시각(분 단위)에 /status 와 같은 내용을 보낸다. 같은 분에 두 번 안 보내게 state 에 기록."""
+    tg = ctx.tg
+    while True:
+        try:
+            slots = brief_slots(brief_cfg(ctx))
+            now = time.localtime()
+            hm, key = time.strftime("%H:%M", now), time.strftime("%Y-%m-%d %H:%M", now)
+            if hm in slots and ctx.st.get("brief_last") != key:
+                with bot.LOCK:
+                    ctx.st["brief_last"] = key
+                bot.save_state(ctx.st)
+                _api(tg.token, "sendMessage", {"chat_id": tg.chat, "text": "⏰ 정기 브리핑\n\n" + text_status(ctx),
+                                               "reply_markup": panel(ctx)})
+        except Exception as e:
+            bot.log(f"정기 브리핑 실패: {e}")
+        time.sleep(15)
+
+
 def setup(token):
     """명령 메뉴·소개 문구 등록 (한 번 해두면 텔레그램에 남는다)."""
     try:
@@ -197,6 +296,8 @@ def loop(store):
     if not tg.token:
         return
     setup(tg.token)
+    if tg.chat:
+        threading.Thread(target=brief_loop, args=(ctx,), daemon=True).start()
     offset = 0
     while True:
         try:
@@ -227,6 +328,14 @@ def handle(store, ctx, tg, u):
     if cq:
         _api(tg.token, "answerCallbackQuery", {"callback_query_id": cq["id"]})
         cmd, args = cq.get("data", ""), []
+        if cmd.startswith("b:"):  # 브리핑 일정 버튼
+            try:
+                set_brief(ctx, parse_brief([cmd[2:]]))
+            except Exception as e:
+                send(f"실패: {e}")
+            _api(tg.token, "editMessageText", {"chat_id": chat, "message_id": msg["message_id"],
+                                               "text": text_brief(ctx), "reply_markup": brief_kb(ctx)})
+            return
         if ":" in cmd:  # 설정 버튼
             k, v = cmd.split(":", 1)
             try:
@@ -255,6 +364,12 @@ def handle(store, ctx, tg, u):
             send(text_position(ctx), panel(ctx))
         elif cmd == "/settings":
             send(text_settings(ctx), settings_kb(ctx))
+        elif cmd == "/brief" and args:
+            b = parse_brief(args)
+            set_brief(ctx, b)
+            send(f"⏰ 브리핑 일정: {brief_desc(b)}", panel(ctx))
+        elif cmd == "/brief":
+            send(text_brief(ctx), brief_kb(ctx))
         elif cmd == "/pause":
             web.pause(ctx, True, "텔레그램")
             send("⏸ 퀀트 트레이딩을 멈췄어요. 열린 포지션은 그대로예요.", panel(ctx))

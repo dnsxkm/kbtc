@@ -122,7 +122,7 @@ def briefing(ctx, amt):
     if teto:
         title, why = {"off": ("대기 중. 버튼 눌러.", "[퀀트 트레이딩 시작] 누르면 바로 간다"),
                       "paused": ("일시정지. 대기한다.", "시작 누르기 전엔 안 움직인다"),
-                      "hold": (f"{name[sig]} 홀딩. 안 흔들린다.", "신호 그대로다. 추가 진입 없음"),
+                      "hold": (f"{name[sig]} 홀딩. {'상승' if sig > 0 else '하락'} 추세 견고해보임.", "신호 그대로다. 추가 진입 없음"),
                       "wait9": ("9시까지 대기.", "종가 확정 전엔 안 움직인다")}[state]
         lines = [f"신호 {name[sig]}. 종가가 50일선 {abs(gap):.1f}% {'위' if sig > 0 else '아래'}다", why, f"다음 판단 {when} 뒤"]
         if contra:

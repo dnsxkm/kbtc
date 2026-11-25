@@ -261,7 +261,7 @@ def talk(cfg, kind, **k):
                 f"{'위' if k['sig'] > 0 else '아래'}예요\n{k['weight']}% x {k['lev']}배 = {k['notional']:,.0f} USDT ({k['size']} BTC)")
     if kind == "hold":
         if teto:
-            return f"[KBTC] {k['side']} 홀딩. 안 흔들린다.\n종가 {k['last']:,.0f}, 50일선 대비 {k['gap']:+.1f}%\n총자산 {k['equity']:,.2f} USDT"
+            return f"[KBTC] {k['side']} 홀딩. {'상승' if k['side'] == '롱' else '하락'} 추세 견고해보임.\n종가 {k['last']:,.0f}, 50일선 대비 {k['gap']:+.1f}%\n총자산 {k['equity']:,.2f} USDT"
         return (f"[KBTC] 오늘도 {k['side']} 꼭 쥐고 있어요 ♡\n종가 {k['last']:,.0f} (50일선 대비 {k['gap']:+.1f}%)\n"
                 f"총자산 {k['equity']:,.2f} USDT")
     return ""
