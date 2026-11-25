@@ -218,6 +218,56 @@
   .cal .d .n{color:var(--muted);font-weight:700;text-align:left}
   .cal .d.p{background:rgba(62,207,122,.14)} .cal .d.m{background:rgba(255,95,126,.14)}
   .cal .d.today{outline:1.5px solid var(--gold)}
+  /* ═ Trade 탭 ═ */
+  .th{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 100% 0%,rgba(255,197,107,.10),transparent 60%),linear-gradient(180deg,#191b21,#121419);
+      border:1px solid #23262d;border-radius:18px;padding:14px 14px 12px;margin:2px 0 12px}
+  .th.short{background:radial-gradient(120% 90% at 100% 0%,rgba(255,95,126,.14),transparent 60%),linear-gradient(180deg,#1b1a20,#121419)}
+  .th.long{background:radial-gradient(120% 90% at 100% 0%,rgba(62,207,122,.14),transparent 60%),linear-gradient(180deg,#181c1b,#121419)}
+  .thr{display:flex;align-items:center;gap:10px}
+  .tcoin{width:34px;height:34px;border-radius:50%;background:#f7931a;color:#fff;font-weight:900;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px rgba(247,147,26,.18);flex:none}
+  .tname b{font-size:16px;letter-spacing:.01em} .tname small{display:block;color:var(--muted);font-size:11.5px;font-weight:600}
+  .tstat{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:99px;background:rgba(136,230,196,.12);color:var(--mint)}
+  .tstat i{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor;animation:pulse 1.8s infinite}
+  .tstat.off{background:#24272e;color:var(--muted)} .tstat.off i{animation:none}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(136,230,196,.55)}70%{box-shadow:0 0 0 7px rgba(136,230,196,0)}100%{box-shadow:0 0 0 0 rgba(136,230,196,0)}}
+  .tpx{display:flex;align-items:baseline;gap:8px;margin:12px 0 2px} .tpx span{font-size:32px;font-weight:800;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+  .tpx small{font-size:13px;font-weight:800;padding:2px 7px;border-radius:6px;background:#24272e}
+  .tpx small.up{background:rgba(62,207,122,.14)} .tpx small.down{background:rgba(255,95,126,.14)}
+  .tchart{position:relative;margin:6px -4px 0} .tchart svg{width:100%;height:118px;display:block}
+  .tleg{display:flex;gap:12px;font-size:11px;font-weight:700;color:var(--muted);margin:2px 0 0} .tleg i{display:inline-block;width:12px;height:2px;vertical-align:middle;margin-right:4px;border-radius:2px}
+  .tsig{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid #23262d}
+  .tsig b{font-size:13.5px} .tsig small{display:block;color:var(--muted);font-size:11px;font-weight:600}
+  .tsig .tnx{text-align:right} .tsig .tnx b{font-variant-numeric:tabular-nums}
+  .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+  .tgrid div{background:rgba(255,255,255,.03);border-radius:10px;padding:8px 10px} .tgrid small{display:block;color:var(--muted);font-size:10.5px;font-weight:700}
+  .tgrid b{font-size:13.5px;font-variant-numeric:tabular-nums}
+  .scard{background:var(--panel);border-radius:18px;padding:14px;margin-bottom:12px;border:1px solid #1f2228}
+  .shd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px} .shd b{font-size:15px} .shd small{color:var(--muted);font-size:11.5px;font-weight:700}
+  .sbig{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px} .sbig span{color:var(--muted);font-weight:700;font-size:13px} .sbig b{font-size:20px;font-variant-numeric:tabular-nums}
+  .levrow{display:flex;gap:6px;align-items:center;margin-top:6px}
+  .levrow .step{width:40px;height:40px;border-radius:12px;background:#24272e}
+  .levrow input#lev{flex:1;width:auto;height:40px;font-size:18px !important;border-radius:12px;background:#1d2025}
+  .levq{display:flex;gap:6px;margin-top:8px} .levq button{flex:1;border:0;background:#1d2025;color:var(--muted);font:inherit;font-size:12.5px;font-weight:800;padding:7px 0;border-radius:9px}
+  .levq button.on{background:#2c2f36;color:var(--ink);box-shadow:inset 0 0 0 1px var(--gold)}
+  .expo{margin-top:12px;padding:10px 12px;border-radius:12px;background:#121419;border:1px solid #23262d}
+  .expo .r{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;color:var(--muted)} .expo .r b{font-size:15px;color:var(--ink)}
+  .expo .bar{position:relative;height:6px;border-radius:3px;background:linear-gradient(90deg,#3ecf7a 0%,#88e6c4 25%,#ffc56b 50%,#ff9f43 72%,#ff5f7e 100%);margin:9px 0 4px;opacity:.9}
+  .expo .bar i{position:absolute;top:-4px;width:4px;height:14px;margin-left:-2px;border-radius:2px;background:var(--ink);box-shadow:0 0 0 2px #121419}
+  .expo .sc{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
+  .srow{display:flex;align-items:center;justify-content:space-between;margin-top:12px} .srow label{color:var(--muted);font-weight:700;font-size:13px}
+  .sbtns{display:flex;gap:8px;margin-top:12px} .sbtns .pill{flex:1;margin-top:0}
+  .pcard{position:relative;overflow:hidden;border:1px solid #1f2228}
+  .pcard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#3a3d44}
+  .pcard.long::before{background:var(--up)} .pcard.short::before{background:var(--down)}
+  .pcard.long{background:linear-gradient(90deg,rgba(62,207,122,.07),transparent 40%),var(--panel)}
+  .pcard.short{background:linear-gradient(90deg,rgba(255,95,126,.07),transparent 40%),var(--panel)}
+  .pbig{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0 12px} .pbig small{font-size:13px;font-weight:800;margin-left:6px}
+  .lq{margin-top:12px;padding:10px 12px;border-radius:12px;background:#121419;border:1px solid #23262d}
+  .lq .r{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--muted)} .lq .r b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .lq .tr{position:relative;height:6px;border-radius:3px;background:#24272e;margin:10px 0 6px}
+  .lq .fl{position:absolute;top:0;bottom:0;border-radius:3px}
+  .lq .mk{position:absolute;top:-4px;width:4px;height:14px;margin-left:-2px;border-radius:2px;background:var(--ink)}
+  .lq .lb{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);font-variant-numeric:tabular-nums}
   .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#2a2c31;color:var(--ink);
          padding:10px 16px;border-radius:99px;font-weight:700;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw}
   .toast.show{opacity:1}
@@ -305,27 +355,42 @@
 
 <!-- ═════════ Trade ═════════ -->
 <section class="tab" id="tab-trade">
-  <div class="sym"><div><b>BTCUSDT Perp</b><div class="symp"><span id="btcT">—</span> <small id="btcChgT"></small></div>
-      <small class="muted" id="markT"></small></div>
-    <div class="symr"><small class="muted">Funding (8h)</small><b id="fundT">—</b><small class="muted" id="sigT"></small></div></div>
-  <div class="card">
-    <h3>퀀트 전략 · Lv.1 50일선</h3>
-    <div class="row"><span class="muted" style="font-weight:700;font-size:13px">진입 비중</span><b id="wVal">30%</b></div>
+  <div class="th" id="tHero">
+    <div class="thr"><div class="tcoin">₿</div>
+      <div class="tname"><b>BTCUSDT</b> <span class="perp">Perp</span><small id="tEx">Binance · USDT 무기한</small></div>
+      <div class="tstat" id="tStat"><i></i><span>자동매매 중</span></div></div>
+    <div class="tpx"><span id="btcT">—</span><small id="btcChgT"></small></div>
+    <div class="tchart"><svg id="tChart" viewBox="0 0 340 118" preserveAspectRatio="none"></svg></div>
+    <div class="tleg"><span><i style="background:var(--ink)"></i>BTC 일봉 종가 · <span id="tN">60</span>일</span><span><i style="background:var(--gold)"></i>50일선 <b id="tMa" style="color:var(--ink)">—</b></span></div>
+    <div class="tsig"><div><small>오늘 신호</small><b id="sigT">—</b></div>
+      <div class="tnx"><small>다음 판단 · 09:00</small><b id="tNext">—</b></div></div>
+    <div class="tgrid"><div><small>Mark</small><b id="markT">—</b></div><div><small>Funding (8h)</small><b id="fundT">—</b></div><div><small>24h 변동</small><b id="tChg">—</b></div></div>
+  </div>
+
+  <div class="scard">
+    <div class="shd"><b>퀀트 전략</b><small>Lv.1 · 50일선 추세</small></div>
+    <div class="sbig"><span>진입 비중</span><b id="wVal">30%</b></div>
     <div class="slider" id="slider"><div class="track"></div><div class="fill"></div></div>
-    <div class="field"><label>배율 (x)</label><button class="step" data-d="-1">−</button><input type="number" id="lev" min="1" max="15"><button class="step" data-d="1">+</button></div>
-    <div class="field"><label>트레이더 말투</label><div class="seg" id="seg"><button data-p="에겐">에겐</button><button data-p="테토">테토</button></div></div>
-    <button class="pill dark" id="save">설정 저장</button>
-    <button class="pill green" id="pause">퀀트 트레이딩 시작</button>
-    <p class="muted" style="font-size:12px;margin:8px 2px 0">비중·배율은 다음 진입부터 적용돼요 (배율은 거래소에도 바로 반영). 중지해도 열린 포지션은 그대로예요.</p>
+    <div class="sbig" style="margin-top:14px"><span>배율</span><b><span id="levShow">—</span>x</b></div>
+    <div class="levrow"><button class="step" data-d="-1">−</button><input type="number" id="lev" min="1" max="15"><button class="step" data-d="1">+</button></div>
+    <div class="levq" id="levQ"><button data-l="1">1x</button><button data-l="3">3x</button><button data-l="5">5x</button><button data-l="10">10x</button></div>
+    <div class="expo"><div class="r"><span>실노출 (비중 × 배율)</span><b id="expoV">—</b></div>
+      <div class="bar"><i id="expoK" style="left:0"></i></div>
+      <div class="sc"><span>0x</span><span>안정</span><span>추천 상한 1.5x</span><span>위험</span><span>5x+</span></div>
+      <div id="expoT" style="font-size:11.5px;margin-top:6px;font-weight:700"></div></div>
+    <div class="srow"><label>트레이더 말투</label><div class="seg" id="seg"><button data-p="에겐">에겐</button><button data-p="테토">테토</button></div></div>
+    <div class="sbtns"><button class="pill dark" id="save">설정 저장</button><button class="pill green" id="pause">퀀트 트레이딩 시작</button></div>
+    <p class="muted" style="font-size:11.5px;margin:10px 2px 0">비중·배율은 다음 진입부터 적용돼요 (배율은 거래소에도 바로 반영). 중지해도 열린 포지션은 그대로예요.</p>
   </div>
 
   <div class="ttabs" id="tTabs"><button data-t="pos" class="on">Positions (<span id="posN">0</span>)</button><button data-t="orders">Orders</button><button data-t="history">History</button></div>
-  <div class="card" id="tPos">
+  <div class="card pcard" id="tPos">
     <div class="ph"><div class="pt">BTCUSDT Perp <span class="muted">›</span></div>
       <div class="pr"><span class="muted">PnL (USDT)</span><button class="icon" id="shareCur" title="PNL 카드 저장"><svg style="width:18px;height:18px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div></div>
     <div class="ph2"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <span class="oc" id="pSide">—</span><span class="oc" id="pMode">Cross</span><button class="oc" id="pLev">—x ✎</button><span class="bars" id="pBars"><i></i><i></i><i></i><i></i><i></i></span></div>
-      <div class="pnl" id="pPnl">—</div></div>
+      </div>
+    <div class="pbig" id="pPnl">—</div>
     <div class="og">
       <div><small>Size (USDT)</small><span id="pSize">—</span></div>
       <div><small>Margin (USDT)</small><span id="pMargin">—</span></div>
@@ -334,6 +399,9 @@
       <div><small>Mark price</small><span id="pMark">—</span></div>
       <div><small>Liq. price</small><span id="pLiq">—</span></div>
     </div>
+    <div class="lq" id="lqBox" style="display:none"><div class="r"><span>청산가까지</span><b id="lqTxt">—</b></div>
+      <div class="tr"><div class="fl" id="lqFl"></div><div class="mk" id="lqMk"></div></div>
+      <div class="lb"><span id="lqL">—</span><span id="lqR">—</span></div></div>
     <div class="rp">Realized PnL (USDT)<b id="pReal">—</b></div>
     <div class="rp" id="tpslVal" style="margin-top:4px"></div>
     <div class="btn3"><button class="pill" id="tpslOpen">TP/SL</button><button class="pill" id="closeOpen">Close</button><button class="pill" id="closeAll">Close all</button></div>
@@ -595,14 +663,15 @@ function render(s){
   [...$("pBars").children].forEach((b, i) => b.style.background = i < nb ? (mmr < 30 ? "var(--up)" : mmr < 60 ? "var(--gold)" : "var(--down)") : "#3a3d44");
   if (side){
     const margin = Math.abs(p.amt) * p.entry / p.lev, roe = margin ? p.upnl / margin * 100 : 0;
-    $("pPnl").textContent = `${p.upnl > 0 ? "+" : ""}${fmt(p.upnl, 2)} (${pct(roe)})`; $("pPnl").className = "pnl " + tone(p.upnl);
+    $("pPnl").innerHTML = `${p.upnl > 0 ? "+" : ""}${fmt(p.upnl, 2)}<small>${pct(roe)}</small>`; $("pPnl").className = "pbig " + tone(p.upnl);
     $("pSize").textContent = fmt(p.notional, 2); $("pMargin").textContent = fmt(margin, 2);
     $("pRatio").textContent = mmr.toFixed(2) + "%";
     $("pEntry").textContent = fmt(p.entry); $("pMark").textContent = fmt(p.mark); $("pLiq").textContent = p.liq ? fmt(p.liq) : "—";
     if (s.realized != null) { $("pReal").textContent = (s.realized > 0 ? "+" : "") + fmt(s.realized, 2); $("pReal").className = tone(s.realized); }
   } else {
-    ["pPnl", "pSize", "pMargin", "pRatio", "pEntry", "pMark", "pLiq", "pReal"].forEach(k => $(k).textContent = "—"); $("pPnl").className = "pnl";
+    ["pPnl", "pSize", "pMargin", "pRatio", "pEntry", "pMark", "pLiq", "pReal"].forEach(k => $(k).textContent = "—"); $("pPnl").className = "pbig";
   }
+  renderTradeHero(s, side);
   // 본부 모니터
   $("btc2").textContent = fmt(s.btc);
   const d = s.daily || [];
@@ -623,7 +692,7 @@ function render(s){
   $("cNdx").innerHTML = line(null, n.closes, n.chg >= 0 ? "#3ecf7a" : "#ff5f7e", 1.6, null, null, 150, 46);
   $("fund").textContent = s.funding == null ? "—" : (s.funding * 100).toFixed(4) + "%"; $("fundT").textContent = $("fund").textContent;
   if (b.signal) { const t = `50일선 ${b.signal > 0 ? "LONG" : "SHORT"} ${b.gap > 0 ? "+" : ""}${b.gap.toFixed(1)}%`;
-    $("mBtcSig").textContent = t; $("sigT").textContent = t; $("sigT").className = b.signal > 0 ? "up" : "down"; }
+    $("mBtcSig").textContent = t; }
   $("posN").textContent = (s.pos && s.pos.amt) ? 1 : 0;
   if (a.equity) { $("tot1").textContent = $("tot2").textContent = fmt(a.equity, 2); renderToday(a.equity); }
   // 계좌
@@ -632,7 +701,7 @@ function render(s){
   $("aAv").textContent = fmt(a.avail, 2) + " USDT"; $("aUsed").textContent = fmt(a.used, 2) + " USDT";
   // 설정 (편집 중이 아니면 서버값 반영)
   if (!draft) setDraft({weight: s.settings.weight, leverage: s.settings.leverage, persona: s.settings.persona}, false);
-  $("pause").textContent = s.paused ? "퀀트 트레이딩 시작" : "중지"; $("pause").className = "pill " + (s.paused ? "green" : "red");
+  $("pause").textContent = s.paused ? "▶ 트레이딩 시작" : "■ 중지"; $("pause").className = "pill " + (s.paused ? "green" : "red");
   $("keyHint").textContent = s.key_hint || "—";
   if (s.exchange_name) $("acctName").textContent = s.exchange_name + " Demo · USDT 무기한 선물";
   renderTPSL(s);
@@ -642,6 +711,57 @@ function render(s){
   $("log").innerHTML = (s.events || []).map(([t, m]) => `<div><time>${t}</time>${m.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>`).join("") || '<div class="muted">아직 기록이 없어요</div>';
   const age = s.at ? Math.round(s.now - s.at) : null;
   $("foot").textContent = s.acct_err ? "계좌 조회 오류: " + s.acct_err : s.err ? "시세 오류: " + s.err : `업데이트 ${age ?? "—"}초 전 · ${s.settings.symbol} · 5초마다 갱신`;
+}
+
+// ── Trade 탭: 히어로 차트 · 신호 · 청산 거리 ──
+function renderTradeHero(s, side){
+  const p = s.pos || {}, b = s.briefing || {};
+  $("tHero").className = "th " + (b.signal > 0 ? "long" : b.signal < 0 ? "short" : "");
+  $("tPos").className = "card pcard " + side;
+  $("tEx").textContent = (s.exchange_name || "Binance") + " · USDT 무기한";
+  const on = !s.paused; $("tStat").className = "tstat" + (on ? "" : " off"); $("tStat").lastElementChild.textContent = on ? "자동매매 중" : "일시정지";
+  $("markT").textContent = fmt(s.mark); $("tChg").textContent = pct(s.btc_chg); $("tChg").className = tone(s.btc_chg);
+  if (b.signal){ $("sigT").textContent = `${b.signal > 0 ? "LONG" : "SHORT"} · 50일선 ${b.gap > 0 ? "+" : ""}${b.gap.toFixed(1)}%`; $("sigT").className = b.signal > 0 ? "up" : "down"; }
+  if (s.close_time){ const left = Math.max(0, (s.close_time + 86400000) / 1000 - s.now);
+    $("tNext").textContent = `${Math.floor(left / 3600)}시간 ${Math.floor(left % 3600 / 60)}분`; }
+  // 60일 종가 + 50일선 (지금 가격까지 이어서)
+  const d = s.daily || [], N = Math.min(60, d.length - 49);
+  if (N >= 20){
+    const view = d.slice(-N).concat(s.btc ? [s.btc] : []);
+    const ma = d.slice(-N).map((_, i) => { const e = d.length - N + i; return d.slice(e - 49, e + 1).reduce((x, y) => x + y, 0) / 50; });
+    const lo = Math.min(...view, ...ma) * 0.995, hi = Math.max(...view, ...ma) * 1.005, W = 340, H = 118;
+    const X = i => i / (view.length - 1) * (W - 8), Y = v => H - 4 - (v - lo) / (hi - lo) * (H - 10);
+    const pts = view.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+    const mpts = ma.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
+    const col = b.signal > 0 ? "#3ecf7a" : "#ff5f7e", lx = X(view.length - 1), ly = Y(view[view.length - 1]);
+    $("tChart").innerHTML = `<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <polygon points="0,${H} ${pts} ${W},${H}" fill="url(#tg)"/>
+      <polyline points="${mpts}" fill="none" stroke="#ffc56b" stroke-width="1.6" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>
+      <polyline points="${pts}" fill="none" stroke="#ede8df" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <circle cx="${lx}" cy="${ly}" r="7" fill="${col}" opacity=".25"/><circle cx="${lx}" cy="${ly}" r="3.2" fill="${col}"/>`;
+    $("tMa").textContent = fmt(ma[ma.length - 1], 0); $("tN").textContent = N;
+  }
+  // 청산가까지 거리: 진입가 ─ 현재가 ─ 청산가
+  if (side && p.liq && p.mark){
+    const dist = Math.abs(p.liq - p.mark) / p.mark * 100;
+    const lo = Math.min(p.entry, p.mark, p.liq), hi = Math.max(p.entry, p.mark, p.liq), P = v => (v - lo) / (hi - lo) * 100;
+    const col = dist > 50 ? "var(--up)" : dist > 20 ? "var(--gold)" : "var(--down)";
+    $("lqBox").style.display = ""; $("lqTxt").textContent = `${dist.toFixed(1)}% 남음`; $("lqTxt").style.color = col;
+    const a = P(p.mark), z = P(p.liq); $("lqFl").style.left = Math.min(a, z) + "%"; $("lqFl").style.width = Math.abs(z - a) + "%"; $("lqFl").style.background = col; $("lqFl").style.opacity = ".55";
+    $("lqMk").style.left = a + "%";
+    const L = p.liq < p.mark ? ["청산 " + fmt(p.liq, 0), "현재 " + fmt(p.mark, 0)] : ["현재 " + fmt(p.mark, 0), "청산 " + fmt(p.liq, 0)];
+    $("lqL").textContent = L[0]; $("lqR").textContent = L[1];
+  } else $("lqBox").style.display = "none";
+}
+function renderExpo(){
+  const x = (cur.weight || 0) / 100 * (+cur.leverage || 0);
+  $("levShow").textContent = cur.leverage || "—";
+  document.querySelectorAll("#levQ button").forEach(b => b.classList.toggle("on", +b.dataset.l === +cur.leverage));
+  $("expoV").textContent = x.toFixed(2) + "x";
+  $("expoK").style.left = Math.min(100, x / 5 * 100) + "%";
+  const [t, c] = x <= 1 ? ["안정 구간이에요", "var(--up)"] : x <= 1.5 ? ["추천 범위예요 (백테스트 기준 3~5배)", "var(--mint)"]
+             : x <= 3 ? ["공격적이에요. 낙폭이 -70% 넘게 날 수 있어요", "var(--gold)"] : ["매우 위험해요. 과거에 계좌가 -95% 넘게 빠졌어요", "var(--down)"];
+  $("expoT").textContent = t; $("expoT").style.color = c; $("expoV").style.color = c;
 }
 
 // ── 설정 위젯 ──
@@ -659,8 +779,10 @@ function setDraft(v, editing = true){
   sl.querySelectorAll(".dot").forEach(d => d.classList.toggle("on", +d.dataset.t <= w));
   if (document.activeElement !== $("lev")) $("lev").value = cur.leverage;
   document.querySelectorAll("#seg button").forEach(b => b.classList.toggle("on", b.dataset.p === cur.persona));
-  $("save").className = "pill " + (draft ? "green" : "dark"); $("save").textContent = draft ? "설정 저장 (변경됨)" : "설정 저장";
+  $("save").className = "pill " + (draft ? "green" : "dark"); $("save").textContent = draft ? "저장 (변경됨)" : "설정 저장";
+  renderExpo();
 }
+document.querySelectorAll("#levQ button").forEach(b => b.onclick = () => setDraft({leverage: Math.min(MAXLEV(), +b.dataset.l)}));
 function slide(e){
   const r = sl.getBoundingClientRect(); let v = Math.round(Math.min(100, Math.max(0, (e.clientX - r.left) / r.width * 100)));
   TICKS.forEach(t => { if (Math.abs(v - t) <= 2) v = t; }); setDraft({weight: Math.max(1, v)});
