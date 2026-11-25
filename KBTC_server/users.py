@@ -1,6 +1,7 @@
-"""여러 사람이 각자 바이낸스 Demo API 키로 쓰는 사용자 저장소.
+"""여러 사람이 각자 바이낸스/OKX/Gate Demo API 키로 쓰는 사용자 저장소.
 
-- 사용자 ID = API Key 의 SHA-256 앞 16자리 (키 자체는 저장 파일 이름에 안 남김)
+- 사용자 ID = API Key 의 SHA-256 앞 16자리 (OKX/Gate 는 "거래소:키"). 키 자체는 파일 이름에 안 남김
+- OKX 는 Passphrase 도 필요 (같이 암호화 저장)
 - 키는 서버 비밀값으로 만든 HMAC 키스트림으로 암호화해 /data/users/<id>/keys.json 에 저장
 - 매매 기록은 /data/users/<id>/state.json
 - 서버 주인(환경변수 BINANCE_API_KEY)의 키로 접속하면 기존 /data/state.json 을 그대로 쓰는 'owner'
@@ -63,8 +64,17 @@ def decrypt(blob: str) -> str:
     return bytes(a ^ b for a, b in zip(ct, _stream(nonce, len(ct)))).decode()
 
 
-def uid_for(key: str) -> str:
-    return hashlib.sha256(key.encode()).hexdigest()[:16]
+EXCHANGES = {"binance": "Binance", "okx": "OKX", "gate": "Gate"}
+KEY_HELP = {
+    "binance": "키가 맞지 않거나 Futures 권한이 꺼져 있어요. Demo Trading API 에서 만든 키인지, Enable Futures 가 켜져 있는지 확인하세요.",
+    "okx": "키·Secret·Passphrase 가 맞지 않거나 모의거래(Demo trading)용 키가 아니에요. OKX 모의거래 화면에서 만든 API 키인지, 권한에 Trade 가 있는지 확인하세요.",
+    "gate": "키가 맞지 않거나 TestNet 키가 아니에요. Gate TestNet 에서 만든 키인지, Perpetual Futures 읽기·쓰기 권한이 있는지 확인하세요.",
+}
+
+
+def uid_for(key: str, exchange: str = "binance") -> str:
+    raw = key if exchange == "binance" else f"{exchange}:{key}"  # 바이낸스는 기존 ID 그대로
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
 def sign(uid: str) -> str:
@@ -81,7 +91,7 @@ class Ctx:
 
     def __init__(self, uid, cfg, st, tg, owner=False):
         self.uid, self.cfg, self.st, self.owner = uid, cfg, st, owner
-        self.ex = bot.Futures(cfg)
+        self.ex = bot.make_ex(cfg)
         self.tg = tg
         self.acct_cache, self.acct_at = None, 0.0
         self.last_err, self.err_at = None, 0.0
@@ -100,16 +110,17 @@ class Store:
             except Exception as e:
                 bot.log(f"사용자 {uid} 불러오기 실패: {e}")
 
-    def _cfg_for(self, key, secret):
+    def _cfg_for(self, key, secret, exchange="binance", passphrase=""):
         cfg = copy.copy(self.base)
-        cfg.update(key=key, secret=secret, mode="demo", tg_token="", tg_chat="",
+        cfg.update(key=key, secret=secret, mode="demo", tg_token="", tg_chat="", exchange=exchange, passphrase=passphrase,
                    weight=bot.D("30"), leverage=10, persona="에겐")
         return cfg
 
     def _load(self, uid):
         d = os.path.join(UDIR, uid)
         keys = json.load(open(os.path.join(d, "keys.json")))
-        cfg = self._cfg_for(decrypt(keys["key"]), decrypt(keys["secret"]))
+        cfg = self._cfg_for(decrypt(keys["key"]), decrypt(keys["secret"]), keys.get("exchange", "binance"),
+                            decrypt(keys["passphrase"]) if keys.get("passphrase") else "")
         st = bot.load_state(os.path.join(d, "state.json"))
         st["__path"] = os.path.join(d, "state.json")
         bot.apply_overrides(cfg, st)
@@ -122,41 +133,46 @@ class Store:
     def get(self, uid):
         return self.ctxs.get(uid)
 
-    def connect(self, key: str, secret: str) -> Ctx:
-        """키를 검증(바이낸스 Demo 선물 계좌 조회)하고 사용자로 등록."""
-        key, secret = key.strip(), secret.strip()
+    def connect(self, key: str, secret: str, exchange: str = "binance", passphrase: str = "") -> Ctx:
+        """키를 검증(Demo 선물 계좌 조회)하고 사용자로 등록."""
+        key, secret, passphrase = key.strip(), secret.strip(), passphrase.strip()
+        if exchange not in EXCHANGES:
+            raise ValueError("거래소는 Binance / OKX / Gate 중에서 골라 주세요.")
         if len(key) < 20 or len(secret) < 20:
             raise ValueError("API Key / Secret Key 를 정확히 붙여 넣어 주세요.")
-        uid = uid_for(key)
+        if exchange == "okx" and not passphrase:
+            raise ValueError("OKX 는 API 키 만들 때 정한 Passphrase 도 넣어 주세요.")
+        uid = uid_for(key, exchange)
         if uid == self.owner_uid:
             if not hmac.compare_digest(secret, self.base["secret"]):
                 raise ValueError("Secret Key 가 맞지 않습니다.")
             return self.ctxs[uid]
-        cfg = self._cfg_for(key, secret)
-        ex = bot.Futures(cfg)
+        cfg = self._cfg_for(key, secret, exchange, passphrase)
+        ex = bot.make_ex(cfg)
         try:
             ex.sync()
             ex.position()
             ex.account()
         except Exception as e:
             msg = str(e)
-            if "-2015" in msg or "-2014" in msg or "401" in msg:
-                msg = "키가 맞지 않거나 Futures 권한이 꺼져 있어요. Demo Trading API 에서 만든 키인지, Enable Futures 가 켜져 있는지 확인하세요."
+            if any(c in msg for c in ("-2015", "-2014", "401", "50111", "50113", "50119", "50101", "INVALID_KEY", "INVALID_SIGNATURE", "FORBIDDEN")):
+                msg = KEY_HELP[exchange]
             raise ValueError(msg)
         with _lock:
             d = os.path.join(UDIR, uid)
             os.makedirs(d, exist_ok=True)
             with open(os.path.join(d, "keys.json"), "w") as f:
-                json.dump({"key": encrypt(key), "secret": encrypt(secret), "at": time.time()}, f)
+                json.dump({"key": encrypt(key), "secret": encrypt(secret), "exchange": exchange,
+                           "passphrase": encrypt(passphrase) if passphrase else "", "at": time.time()}, f)
             os.chmod(os.path.join(d, "keys.json"), 0o600)
             if uid in self.ctxs:  # 같은 키 다시 연결 → 시크릿 갱신
-                self.ctxs[uid].cfg.update(key=key, secret=secret)
-                self.ctxs[uid].ex = bot.Futures(self.ctxs[uid].cfg)
+                self.ctxs[uid].cfg.update(key=key, secret=secret, passphrase=passphrase)
+                self.ctxs[uid].ex = bot.make_ex(self.ctxs[uid].cfg)
                 return self.ctxs[uid]
             ctx = self._load(uid)
             if not ctx.st.get("events"):
                 ctx.st["paused"] = True          # 새 사용자는 [퀀트 트레이딩 시작]을 눌러야 시작
-                ctx.tg.send("[KBTC] API 연결 완료 · Demo 계좌", notify=False)
+                ctx.tg.send(f"[KBTC] API 연결 완료 · {EXCHANGES[exchange]} Demo 계좌", notify=False)
                 bot.save_state(ctx.st)
             bot.log(f"사용자 연결 {uid} (총 {len(self.ctxs)}명)")
             return ctx

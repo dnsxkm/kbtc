@@ -1,5 +1,6 @@
-"""주문/포지션 기록, 월 PNL 캘린더, 계좌 그래프, CLOSE, TP/SL (바이낸스 USDT-M).
+"""주문/포지션 기록, 월 PNL 캘린더, 계좌 그래프, CLOSE, TP/SL (USDT 무기한 선물 · 바이낸스/OKX/Gate 공통).
 
+거래소 호출은 ctx.ex 의 공통 메서드(바이낸스 모양 응답)만 쓴다. 거래소별 차이는 kbtc_bot.Futures / exchanges.py 에.
 바이낸스는 '포지션 기록' API 가 없어서 체결(userTrades)을 시간순으로 따라가며
 포지션이 0 이 되거나 방향이 바뀌는 지점을 '종료된 포지션'으로 묶는다.
 계좌 그래프는 현재 지갑 잔고에서 수입 내역(income: 실현손익·수수료·펀딩·입출금)을 거꾸로 빼서 일별로 복원한다.
@@ -35,27 +36,9 @@ def invalidate(ctx):
         _cache.pop(k, None)
 
 
-def _windows(now, days=LOOKBACK_DAYS, step=7):
-    end = now
-    while end > now - days * DAY:
-        start = max(end - step * DAY + 1, now - days * DAY)
-        yield start, end
-        end = start - 1
-
-
-def _parallel(ctx, path, extra):
-    """7일 구간 13개를 동시에 요청 (바이낸스 기록 API 는 한 번에 7일까지)."""
-    from concurrent.futures import ThreadPoolExecutor
-    now = ctx.ex.sync()
-    jobs = [dict(extra, startTime=a, endTime=b, limit=1000) for a, b in _windows(now)]
-    with ThreadPoolExecutor(6) as pool:
-        parts = pool.map(lambda q: ctx.ex.req("GET", path, q, True), jobs)
-    return [r for part in parts for r in part]
-
-
 def _trades(ctx):
     def f():
-        rows = _parallel(ctx, "/fapi/v1/userTrades", {"symbol": ctx.cfg["symbol"]})
+        rows = ctx.ex.trades_hist(LOOKBACK_DAYS)
         return sorted({r["id"]: r for r in rows}.values(), key=lambda r: (r["time"], r["id"]))
     return _cached(ctx, "trades", 120, f)
 
@@ -65,7 +48,7 @@ def _income(ctx):
 
 
 def _income_raw(ctx):
-    rows = _parallel(ctx, "/fapi/v1/income", {})
+    rows = ctx.ex.income_hist(LOOKBACK_DAYS)
     seen, out = set(), []
     for r in sorted(rows, key=lambda r: r["time"]):
         key = (r["time"], r["incomeType"], r["income"], r.get("tranId"), r.get("tradeId"))
@@ -78,12 +61,12 @@ def _income_raw(ctx):
 # ───────────────────────── 주문 기록 ─────────────────────────
 def orders(ctx, limit=50):
     def f():
-        rows = ctx.ex.req("GET", "/fapi/v1/allOrders", {"symbol": ctx.cfg["symbol"], "limit": limit}, True)
+        rows = ctx.ex.orders_hist(limit)
         out = []
         for o in sorted(rows, key=lambda o: o["time"], reverse=True):
             out.append(dict(time=o["time"], side=o["side"], type=o["type"], status=o["status"],
                             qty=float(o["executedQty"] or o["origQty"]), price=float(o.get("avgPrice") or o.get("price") or 0),
-                            reduce=o.get("reduceOnly", False), bot=o.get("clientOrderId", "").startswith("kbtc-")))
+                            reduce=o.get("reduceOnly", False), bot="kbtc" in (o.get("clientOrderId") or "")))
         try:
             for a in ctx.ex.open_algos():
                 out.insert(0, dict(time=a.get("createTime", 0), side=a["side"], type=a["orderType"], status="대기(TP/SL)",
@@ -249,7 +232,7 @@ def set_tpsl_price(ctx, tp_price, sl_price, auto=True, ratio=1.0):
         raise ValueError("Amount 가 0 이라 TP/SL 을 설정하지 않았어요.")
     ex = ctx.ex
     ex.sync()
-    pos = ex.req("GET", "/fapi/v2/positionRisk", {"symbol": ctx.cfg["symbol"]}, True)[0]
+    pos = ex.pos_info()
     amt, entry = D(pos["positionAmt"]), D(pos["entryPrice"])
     if not amt:
         raise ValueError("열린 포지션이 없어요.")
@@ -261,24 +244,18 @@ def set_tpsl_price(ctx, tp_price, sl_price, auto=True, ratio=1.0):
         raise ValueError(f"TP 는 현재가 {mark:,.1f} 보다 {'위' if side > 0 else '아래'}여야 해요.")
     if sl and (mark - sl) * side <= 0:
         raise ValueError(f"SL 은 현재가 {mark:,.1f} 보다 {'아래' if side > 0 else '위'}여야 해요.")
+    part = None
+    if (tp or sl) and float(ratio) < 0.999:  # 일부 수량만 TP/SL
+        step = D(ex.filters()["MARKET_LOT_SIZE"]["stepSize"])
+        part = (abs(amt) * D(str(ratio)) // step) * step
+        if part <= 0:
+            raise ValueError("수량이 최소 주문 단위보다 작아요.")
     ex.cancel_algos()
     placed = []
-    for kind, px in (("TAKE_PROFIT_MARKET", tp), ("STOP_MARKET", sl)):
-        if px:
-            tick = ex.tick()
-            px = (px / tick).quantize(D(1)) * tick
-            q = {"algoType": "CONDITIONAL", "symbol": ctx.cfg["symbol"], "side": "SELL" if side > 0 else "BUY", "type": kind,
-                 "triggerPrice": format(px, "f"), "workingType": "MARK_PRICE"}
-            if float(ratio) >= 0.999:
-                q["closePosition"] = "true"
-            else:  # 일부 수량만 TP/SL
-                step = D(ex.filters()["MARKET_LOT_SIZE"]["stepSize"])
-                part = (abs(amt) * D(str(ratio)) // step) * step
-                if part <= 0:
-                    raise ValueError("수량이 최소 주문 단위보다 작아요.")
-                q.update(quantity=format(part, "f"), reduceOnly="true")
-            ex.req("POST", "/fapi/v1/algoOrder", q, True)
-            placed.append((kind, float(px)))
+    if tp or sl:
+        tick = ex.tick()
+        rnd = lambda p: (p / tick).quantize(D(1)) * tick if p else None
+        placed = [(k, float(p)) for k, p in ex.place_tpsl_px(side, rnd(tp), rnd(sl), part)]
     o = ctx.st.setdefault("overrides", {})
     if auto:
         o["tp_pct"] = round(float(abs(tp / entry - 1) * 100), 3) if tp else 0.0
@@ -301,7 +278,7 @@ def set_tpsl(ctx, tp_pct, sl_pct, apply_now=True):
         ex = ctx.ex
         ex.sync()
         ex.cancel_algos()
-        pos = ex.req("GET", "/fapi/v2/positionRisk", {"symbol": ctx.cfg["symbol"]}, True)[0]
+        pos = ex.pos_info()
         amt = D(pos["positionAmt"])
         if amt and (o["tp_pct"] or o["sl_pct"]):
             placed = ex.place_tpsl(1 if amt > 0 else -1, D(pos["entryPrice"]), o["tp_pct"], o["sl_pct"])

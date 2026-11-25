@@ -1,8 +1,8 @@
 """KBTC 폰용 창구: 모바일 웹 앱(여러 사용자) + 서버 주인용 텔레그램 명령.
 
-웹 (각자 자기 바이낸스 Demo API 키로 접속)
+웹 (각자 자기 바이낸스/OKX/Gate Demo API 키로 접속)
   GET  /                 앱 화면 (홈 화면에 추가하면 앱처럼 사용)
-  POST /api/connect      {"key": "...", "secret": "..."}  → 키 확인 후 세션 쿠키
+  POST /api/connect      {"exchange": "binance|okx|gate", "key": "...", "secret": "...", "passphrase": "(OKX)"}  → 키 확인 후 세션 쿠키
   GET  /api/state        시세·내 포지션·내 계좌·브리핑·설정·활동 기록
   POST /api/settings     {"weight": 30, "leverage": 10, "persona": "에겐"}
   POST /api/pause        {"paused": true|false}  (false = 퀀트 트레이딩 시작)
@@ -74,9 +74,8 @@ def nasdaq():
 def account_of(ctx):
     if ctx.acct_cache and time.time() - ctx.acct_at < 8:
         return ctx.acct_cache
-    g = lambda path: ctx.ex.req("GET", path, {"symbol": ctx.cfg["symbol"]} if "position" in path else None, True)
-    pos = g("/fapi/v2/positionRisk")[0]
-    acct = g("/fapi/v3/account")
+    pos = ctx.ex.pos_info()
+    acct = ctx.ex.account()
     ctx.acct_cache = dict(
         pos=dict(amt=float(pos["positionAmt"]), entry=float(pos["entryPrice"]), mark=float(pos["markPrice"]),
                  upnl=float(pos["unRealizedProfit"]), liq=float(pos["liquidationPrice"]), lev=int(pos["leverage"]),
@@ -147,6 +146,7 @@ def snapshot(ctx):
     st = ctx.st
     return dict(CACHE, **mine, acct_err=err, briefing=briefing(ctx, mine.get("pos", {}).get("amt", 0)),
                 paused=bool(st.get("paused")), owner=ctx.owner, key_hint=ctx.cfg["key"][:6] + "…" + ctx.cfg["key"][-4:],
+                exchange=ctx.cfg.get("exchange", "binance"), exchange_name=ctx.ex.NAME,
                 events=list(reversed(st.get("events", [])[-20:])),
                 settings=dict(weight=float(ctx.cfg["weight"]), leverage=ctx.cfg["leverage"], persona=ctx.cfg["persona"],
                               mode=ctx.cfg["mode"], symbol=ctx.cfg["symbol"], max_lev=bot.MAX_LEV,
@@ -258,7 +258,8 @@ def make_handler(store):
                 return self.send(400, {"error": "bad json"})
             if path == "/api/connect":
                 try:
-                    ctx = store.connect(str(data.get("key", "")), str(data.get("secret", "")))
+                    ctx = store.connect(str(data.get("key", "")), str(data.get("secret", "")),
+                                        str(data.get("exchange") or "binance").lower(), str(data.get("passphrase", "")))
                 except Exception as e:
                     time.sleep(1)
                     return self.send(400, {"error": str(e)})

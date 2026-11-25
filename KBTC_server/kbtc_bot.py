@@ -60,6 +60,7 @@ def load_config():
         enter_now=os.getenv("ENTER_NOW", "false").lower() == "true",
         tg_token=os.getenv("TELEGRAM_BOT_TOKEN", ""),
         tg_chat=os.getenv("TELEGRAM_CHAT_ID", ""),
+        exchange="binance", passphrase="",
     )
     if cfg["mode"] not in ("demo", "live"):
         raise SystemExit("MODE 는 demo 또는 live 여야 합니다.")
@@ -76,8 +77,28 @@ def log(msg):
     print(time.strftime("%Y-%m-%d %H:%M:%S"), msg, flush=True)
 
 
+def make_ex(cfg):
+    """cfg["exchange"] 에 맞는 거래소 클라이언트. 모두 같은 메서드·바이낸스 모양 응답을 돌려준다."""
+    name = cfg.get("exchange", "binance")
+    if name == "binance":
+        return Futures(cfg)
+    import exchanges
+    return {"okx": exchanges.Okx, "gate": exchanges.Gate}[name](cfg)
+
+
+def windows(now, days, step=7):
+    """[now-days, now] 를 step 일 구간으로 나눈 (start, end) ms 목록 (최근부터)."""
+    end, day = now, 86_400_000
+    while end > now - days * day:
+        start = max(end - step * day + 1, now - days * day)
+        yield start, end
+        end = start - 1
+
+
 # ───────────────────────── 바이낸스 선물 ─────────────────────────
 class Futures:
+    NAME = "Binance"
+
     def __init__(self, cfg):
         self.key, self.secret, self.symbol = cfg["key"], cfg["secret"], cfg["symbol"]
         self.base = "https://demo-fapi.binance.com" if cfg["mode"] == "demo" else "https://fapi.binance.com"
@@ -117,6 +138,13 @@ class Futures:
         if any(r["positionSide"] != "BOTH" for r in rows):
             raise RuntimeError("단방향(One-way) 포지션 모드가 필요합니다.")
         return sum((D(r["positionAmt"]) for r in rows), D(0))
+
+    def pos_info(self):
+        """positionRisk 한 줄: positionAmt, entryPrice, markPrice, unRealizedProfit, liquidationPrice, leverage, marginType, notional"""
+        return self.req("GET", "/fapi/v2/positionRisk", {"symbol": self.symbol}, True)[0]
+
+    def open_orders(self):
+        return self.req("GET", "/fapi/v1/openOrders", {"symbol": self.symbol}, True)
 
     def account(self):
         return self.req("GET", "/fapi/v3/account", signed=True)
@@ -170,19 +198,48 @@ class Futures:
 
     def place_tpsl(self, side, entry, tp_pct, sl_pct):
         """side: 1 롱 / -1 숏. entry 대비 가격 % 로 익절·손절(마크가격 기준, 전량 청산)."""
-        tick, out = self.tick(), []
-        close_side = "SELL" if side > 0 else "BUY"
-        for kind, pct, sign in (("TAKE_PROFIT_MARKET", tp_pct, 1), ("STOP_MARKET", sl_pct, -1)):
-            if not pct:
+        tick, px = self.tick(), {}
+        for kind, pct, sign in (("tp", tp_pct, 1), ("sl", sl_pct, -1)):
+            if pct:
+                p = D(str(entry)) * (1 + side * sign * D(str(pct)) / 100)
+                px[kind] = (p / tick).quantize(D(1)) * tick
+        return self.place_tpsl_px(side, px.get("tp"), px.get("sl"))
+
+    def place_tpsl_px(self, side, tp, sl, qty=None):
+        """트리거 가격(틱 맞춤)으로 TP/SL. qty=None 이면 전량 청산, 아니면 그 BTC 수량만. → [(kind, px)]"""
+        out = []
+        for kind, px in (("TAKE_PROFIT_MARKET", tp), ("STOP_MARKET", sl)):
+            if not px:
                 continue
-            px = D(entry) * (1 + side * sign * D(str(pct)) / 100)
-            px = (px / tick).quantize(D(1)) * tick
-            self.req("POST", "/fapi/v1/algoOrder", {
-                "algoType": "CONDITIONAL", "symbol": self.symbol, "side": close_side, "type": kind,
-                "triggerPrice": format(px, "f"), "closePosition": "true", "workingType": "MARK_PRICE",
-                "clientAlgoId": "kbtc-" + uuid4().hex[:20]}, True)
+            q = {"algoType": "CONDITIONAL", "symbol": self.symbol, "side": "SELL" if side > 0 else "BUY", "type": kind,
+                 "triggerPrice": format(px, "f"), "workingType": "MARK_PRICE", "clientAlgoId": "kbtc-" + uuid4().hex[:20]}
+            if qty is None:
+                q["closePosition"] = "true"
+            else:
+                q.update(quantity=format(qty, "f"), reduceOnly="true")
+            self.req("POST", "/fapi/v1/algoOrder", q, True)
             out.append((kind, px))
         return out
+
+    # ── 기록 (분석 탭용). 바이낸스 기록 API 는 한 번에 7일까지라 구간을 나눠 동시에 받는다 ──
+    def _parallel(self, path, extra, days):
+        from concurrent.futures import ThreadPoolExecutor
+        now = self.sync()
+        jobs = [dict(extra, startTime=a, endTime=b, limit=1000) for a, b in windows(now, days)]
+        with ThreadPoolExecutor(6) as pool:
+            parts = pool.map(lambda q: self.req("GET", path, q, True), jobs)
+        return [r for part in parts for r in part]
+
+    def trades_hist(self, days):
+        """체결: id, time, side(BUY/SELL), qty(BTC), price, realizedPnl, commission(+ = 낸 수수료)"""
+        return self._parallel("/fapi/v1/userTrades", {"symbol": self.symbol}, days)
+
+    def income_hist(self, days):
+        """수입: time, incomeType(REALIZED_PNL/COMMISSION/FUNDING_FEE/...), income(+/-), asset"""
+        return self._parallel("/fapi/v1/income", {}, days)
+
+    def orders_hist(self, limit):
+        return self.req("GET", "/fapi/v1/allOrders", {"symbol": self.symbol, "limit": limit}, True)
 
 
 # ───────────────────────── 알림 ─────────────────────────
@@ -281,8 +338,8 @@ def decide(cfg, ex, tg, st, force=False):
     cur = int(qty > 0) - int(qty < 0)
     sig, last, sma, gap = signal(closes, cur)
     date = time.strftime("%m/%d", time.localtime(day / 1000))
-    if ex.req("GET", "/fapi/v1/openOrders", {"symbol": cfg["symbol"]}, True):
-        raise RuntimeError(f"{cfg['symbol']} 미체결 주문이 있어 매매를 건너뜁니다. 바이낸스에서 정리하세요.")
+    if ex.open_orders():
+        raise RuntimeError(f"{cfg['symbol']} 미체결 주문이 있어 매매를 건너뜁니다. {ex.NAME} 에서 정리하세요.")
     if sig != cur:
         try:
             ex.cancel_algos()  # 이전 포지션의 TP/SL 정리
@@ -328,7 +385,7 @@ def status(cfg, ex):
     qty = ex.position()
     sig, last, sma, gap = signal([D(b[4]) for b in closed], int(qty > 0) - int(qty < 0))
     acct = ex.account()
-    lev = ex.req("GET", "/fapi/v2/positionRisk", {"symbol": cfg["symbol"]}, True)[0]["leverage"]
+    lev = ex.pos_info()["leverage"]
     left = (closed[-1][6] + 86_400_000 - now) / 1000
     st = load_state()
     print(f"모드 {cfg['mode']} · {cfg['symbol']} · 비중 {cfg['weight']}% · 설정 배율 {cfg['leverage']}x (현재 계정 {lev}x)")
@@ -381,7 +438,7 @@ def main():
     cfg = load_config()
     st = load_state()
     apply_overrides(cfg, st)
-    ex, tg = Futures(cfg), Telegram(cfg, st)
+    ex, tg = make_ex(cfg), Telegram(cfg, st)
     cmd = sys.argv[1] if len(sys.argv) > 1 else "run"
     if cmd == "status":
         status(cfg, ex)

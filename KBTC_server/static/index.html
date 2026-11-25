@@ -82,6 +82,7 @@
               padding:18px 16px calc(20px + env(safe-area-inset-bottom))}
   .sheet h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px}
   .sheet .x{margin-left:auto;border:0;background:none;color:var(--muted);font-size:22px}
+  .exseg{margin:8px 0 4px} .exseg button{flex:1}
   .in{width:100%;background:#24272e;border:0;border-radius:10px;color:var(--ink);font:inherit;padding:12px;margin:6px 0;font-family:ui-monospace,Menlo,monospace;font-size:13px}
   .steps{counter-reset:s;padding:0;margin:10px 0;list-style:none}
   .steps li{counter-increment:s;position:relative;padding:8px 0 8px 34px;border-bottom:1px solid var(--line);font-size:14px}
@@ -225,10 +226,12 @@
 <body>
 <div id="login">
   <img src="/logo.png" alt="KOREA BITCOIN">
-  <h3 style="margin:0 0 6px">바이낸스 Demo API 연결</h3>
+  <h3 style="margin:0 0 6px"><span class="exName">Binance</span> Demo API 연결</h3>
   <p class="muted" style="margin:0 0 10px;font-size:13px">내 데모 계좌로 KBTC 퀀트 트레이딩을 시작해요</p>
+  <div class="seg exseg" id="exLogin"><button data-x="binance" class="on">Binance</button><button data-x="okx">OKX</button><button data-x="gate">Gate</button></div>
   <input class="in" id="k" placeholder="API Key" autocomplete="off" autocapitalize="off" spellcheck="false">
   <input class="in" id="s" type="password" placeholder="Secret Key" autocomplete="off">
+  <input class="in pp" id="p" type="password" placeholder="Passphrase (OKX 키 만들 때 정한 것)" autocomplete="off" style="display:none">
   <button class="pill green" id="connectBtn">연결하기</button>
   <button class="pill dark" data-help>? API 키 만드는 법</button>
   <p id="loginErr" style="color:var(--down);font-size:13px"></p>
@@ -400,16 +403,18 @@
 
 <div class="sheet" id="apiSheet"><div class="box">
   <h2>API <button class="q" data-help>?</button><button class="x" data-close>✕</button></h2>
-  <p class="muted" style="margin:0 0 10px;font-size:13px">바이낸스 Demo 선물 계좌 연결 설정</p>
+  <p class="muted" style="margin:0 0 10px;font-size:13px">Demo 선물 계좌 연결 설정</p>
   <div class="row"><span class="muted">연결된 키</span><b id="keyHint">—</b></div>
-  <div class="row"><span class="muted">계좌</span><b>Binance Demo · USDT-M 선물</b></div>
-  <p class="muted" style="margin:14px 0 2px;font-size:13px;font-weight:700">다른 키로 바꾸기</p>
+  <div class="row"><span class="muted">계좌</span><b id="acctName">Binance Demo · USDT 무기한 선물</b></div>
+  <p class="muted" style="margin:14px 0 2px;font-size:13px;font-weight:700">다른 키·거래소로 바꾸기</p>
+  <div class="seg exseg" id="exSheet"><button data-x="binance" class="on">Binance</button><button data-x="okx">OKX</button><button data-x="gate">Gate</button></div>
   <input class="in" id="k2" placeholder="API Key" autocomplete="off" autocapitalize="off" spellcheck="false">
   <input class="in" id="s2" type="password" placeholder="Secret Key" autocomplete="off">
+  <input class="in pp" id="p2" type="password" placeholder="Passphrase (OKX 키 만들 때 정한 것)" autocomplete="off" style="display:none">
   <button class="pill green" id="reconnect">이 키로 연결</button>
   <button class="pill dark" id="logout">이 기기에서 로그아웃</button>
   <button class="pill red" id="disconnect">API 연결 해제 (서버에서 키 삭제)</button>
-  <div class="note">로그아웃해도 서버의 퀀트 트레이딩은 계속 돌아가요. 연결 해제하면 내 키와 기록이 서버에서 지워지고 매매도 멈춰요 (열린 포지션은 바이낸스에 그대로).</div>
+  <div class="note">로그아웃해도 서버의 퀀트 트레이딩은 계속 돌아가요. 연결 해제하면 내 키와 기록이 서버에서 지워지고 매매도 멈춰요 (열린 포지션은 거래소에 그대로).</div>
 </div></div>
 
 <div class="sheet" id="tpslSheet"><div class="box">
@@ -450,7 +455,9 @@
 </div></div>
 
 <div class="sheet" id="helpSheet"><div class="box">
-  <h2>바이낸스 Demo API 키 만드는 법<button class="x" data-close>✕</button></h2>
+  <h2><span class="exName">Binance</span> Demo API 키 만드는 법<button class="x" data-close>✕</button></h2>
+  <div class="seg exseg" id="exHelp"><button data-x="binance" class="on">Binance</button><button data-x="okx">OKX</button><button data-x="gate">Gate</button></div>
+  <div data-ex="binance">
   <ol class="steps">
     <li><b>demo.binance.com</b> 에 접속해 바이낸스 계정으로 로그인해요. 위에 <b>DEMO TRADING</b> 표시가 보이면 맞아요.</li>
     <li>오른쪽 위 <b>사람 아이콘</b>을 누르고 <b>Demo Trading API</b> 를 선택해요.</li>
@@ -464,6 +471,33 @@
   </ol>
   <div class="note">• 실계좌가 아닌 <b>Demo</b> 키만 써요. 진짜 돈은 움직이지 않아요.<br>• 선물 포지션 모드는 기본값인 <b>단방향(One-way)</b> 이어야 해요.<br>• API Key·Secret 은 비밀번호처럼 다른 사람에게 보내지 마세요.</div>
   <a class="linkbtn" href="https://demo.binance.com/en/my/settings/api-management" target="_blank" rel="noopener">바이낸스 Demo API 관리 열기 ↗</a>
+  </div>
+  <div data-ex="okx" style="display:none">
+  <ol class="steps">
+    <li><b>okx.com</b> 에 로그인하고 위쪽 메뉴에서 <b>거래 → 모의 거래(Demo trading)</b> 로 들어가요.</li>
+    <li>모의 거래 화면에서 오른쪽 위 <b>사람 아이콘 → 모의 거래 API(Demo Trading API)</b> 를 눌러요.</li>
+    <li><b>API 키 만들기</b> → 이름(예: <b>KBTC</b>)을 적어요.</li>
+    <li><b>Passphrase</b> 를 직접 정해요. KBTC 에도 똑같이 넣어야 하니 꼭 기억하세요.</li>
+    <li>권한에서 <b>읽기</b>와 <b>거래(Trade)</b> 를 체크하고 확인해요.</li>
+    <li><b>API Key · Secret Key</b> 를 복사해 KBTC 칸에 붙여넣고, <b>Passphrase</b> 도 입력해요.</li>
+    <li>모의 거래 설정에서 <b>계정 모드</b>는 <b>선물 모드(Spot and futures)</b> 이상, <b>포지션 모드</b>는 <b>단방향(One-way)</b> 으로 해 주세요.</li>
+    <li>KBTC 에서 <b>연결하기</b> → <b>퀀트 트레이딩 시작</b>!</li>
+  </ol>
+  <div class="note">• 꼭 <b>모의 거래</b> 화면에서 만든 키여야 해요. 실거래 키는 연결되지 않아요.<br>• 마진은 교차(Cross)로 들어가요.<br>• Key·Secret·Passphrase 는 다른 사람에게 보내지 마세요.</div>
+  <a class="linkbtn" href="https://www.okx.com/account/my-api" target="_blank" rel="noopener">OKX API 관리 열기 ↗</a>
+  </div>
+  <div data-ex="gate" style="display:none">
+  <ol class="steps">
+    <li><b>testnet.gate.com</b> 에 접속해 Gate 계정으로 로그인해요.</li>
+    <li>오른쪽 위 <b>사람 아이콘 → API Keys</b> 에서 <b>Create API Key</b> 를 눌러요.</li>
+    <li>이름(예: <b>KBTC</b>)을 적고, 권한에서 <b>Perpetual Futures</b> 의 <b>읽기·쓰기(Read/Write)</b> 를 체크해요.</li>
+    <li>만들어진 <b>Key · Secret</b> 을 복사해 KBTC 칸에 붙여넣어요. (Passphrase 는 필요 없어요)</li>
+    <li>TestNet <b>USDT 무기한 선물</b> 계좌에 테스트 USDT 가 있는지 확인하고, 포지션 모드는 <b>단일(Single)</b> 로 두세요.</li>
+    <li>KBTC 에서 <b>연결하기</b> → <b>퀀트 트레이딩 시작</b>!</li>
+  </ol>
+  <div class="note">• 실거래가 아닌 <b>TestNet</b> 키만 써요. 진짜 돈은 움직이지 않아요.<br>• 마진은 교차(Cross)로 들어가요.<br>• Key·Secret 은 다른 사람에게 보내지 마세요.</div>
+  <a class="linkbtn" href="https://testnet.gate.com" target="_blank" rel="noopener">Gate TestNet 열기 ↗</a>
+  </div>
 </div></div>
 
 <script>
@@ -483,23 +517,38 @@ async function api(path, body){
   return j;
 }
 function showLogin(){ $("app").style.display = "none"; $("login").style.display = "block"; }
-async function connect(k, s, errEl, btn){
+const EXN = {binance: "Binance", okx: "OKX", gate: "Gate"};
+const EX = {exLogin: "binance", exSheet: "binance", exHelp: "binance"};
+function pickEx(segId, x){
+  EX[segId] = x;
+  $(segId).querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.x === x));
+  if (segId === "exLogin"){ $("p").style.display = x === "okx" ? "" : "none"; document.querySelector("#login .exName").textContent = EXN[x]; }
+  if (segId === "exSheet") $("p2").style.display = x === "okx" ? "" : "none";
+  if (segId === "exHelp"){
+    document.querySelectorAll("#helpSheet [data-ex]").forEach(d => d.style.display = d.dataset.ex === x ? "" : "none");
+    document.querySelector("#helpSheet .exName").textContent = EXN[x];
+  }
+}
+["exLogin", "exSheet", "exHelp"].forEach(id => $(id).querySelectorAll("button").forEach(b => b.onclick = () => pickEx(id, b.dataset.x)));
+async function connect(k, s, p, ex, errEl, btn){
   errEl.textContent = ""; btn.disabled = true; const t = btn.textContent; btn.textContent = "키 확인 중…";
-  try { const st = await api("/api/connect", {key: k.value, secret: s.value}); k.value = s.value = "";
+  try { const st = await api("/api/connect", {exchange: ex, key: k.value, secret: s.value, passphrase: ex === "okx" ? p.value : ""}); k.value = s.value = p.value = "";
         $("login").style.display = "none"; $("app").style.display = "block"; closeSheets(); render(st); toast("API 연결 완료"); }
   catch(e){ errEl.textContent = e.message === "login" ? "" : e.message; if (errEl.id !== "loginErr") toast("실패: " + e.message); }
   finally { btn.disabled = false; btn.textContent = t; }
 }
-$("connectBtn").onclick = () => connect($("k"), $("s"), $("loginErr"), $("connectBtn"));
-$("reconnect").onclick = () => connect($("k2"), $("s2"), {textContent: ""}, $("reconnect"));
+$("connectBtn").onclick = () => connect($("k"), $("s"), $("p"), EX.exLogin, $("loginErr"), $("connectBtn"));
+$("reconnect").onclick = () => connect($("k2"), $("s2"), $("p2"), EX.exSheet, {textContent: ""}, $("reconnect"));
 function closeSheets(){ document.querySelectorAll(".sheet").forEach(x => x.classList.remove("open")); }
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheets);
 document.querySelectorAll(".sheet").forEach(sh => sh.addEventListener("click", e => { if (e.target === sh) closeSheets(); }));
-document.querySelectorAll("[data-help]").forEach(b => b.onclick = () => { closeSheets(); $("helpSheet").classList.add("open"); });
+document.querySelectorAll("[data-help]").forEach(b => b.onclick = () => {
+  const from = $("app").style.display === "none" ? EX.exLogin : EX.exSheet;
+  closeSheets(); pickEx("exHelp", from); $("helpSheet").classList.add("open"); });
 $("apiBtn").onclick = () => $("apiSheet").classList.add("open");
 $("logout").onclick = async () => { await fetch("/api/logout", {method: "POST"}); closeSheets(); showLogin(); };
 $("disconnect").onclick = async () => {
-  if (!confirm("서버에서 내 API 키와 기록을 지우고 매매를 멈출까요? (바이낸스의 열린 포지션은 그대로)")) return;
+  if (!confirm("서버에서 내 API 키와 기록을 지우고 매매를 멈출까요? (거래소의 열린 포지션은 그대로)")) return;
   try { await api("/api/disconnect", {}); closeSheets(); showLogin(); toast("연결 해제했어요"); } catch(e){ toast("실패: " + e.message); }
 };
 
@@ -585,6 +634,7 @@ function render(s){
   if (!draft) setDraft({weight: s.settings.weight, leverage: s.settings.leverage, persona: s.settings.persona}, false);
   $("pause").textContent = s.paused ? "퀀트 트레이딩 시작" : "중지"; $("pause").className = "pill " + (s.paused ? "green" : "red");
   $("keyHint").textContent = s.key_hint || "—";
+  if (s.exchange_name) $("acctName").textContent = s.exchange_name + " Demo · USDT 무기한 선물";
   renderTPSL(s);
   if (!render._hist) { render._hist = true; loadAnSummary(); loadEquity(); setInterval(loadEquity, 120000); setTimeout(loadRealized, 1500); setInterval(loadRealized, 60000); }
   renderBT();

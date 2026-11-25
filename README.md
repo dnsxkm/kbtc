@@ -17,13 +17,14 @@ BTC 무기한 선물을 **Lv.1 50일선 추세** 전략으로 하루 한 번(09:
 | 폴더 | 내용 |
 |---|---|
 | `KBTC_server/` | 24시간 서버: 자동매매 봇 + OKX 스타일 폰 웹앱(KBTC · Trade · Assets) + 텔레그램 봇. 표준 라이브러리만 사용 |
+| `KBTC_server/exchanges.py` | OKX · Gate 어댑터 (바이낸스와 같은 메서드·응답 모양) |
 | `KBTC_desktop/` | 맥/PC 앱 (Tkinter, 픽셀 트레이딩 본부). `KBTC 실행 (Mac).command` 더블클릭 |
 | `백테스트/` | 백테스트 스크립트(pandas, matplotlib) + `결과/` 차트 |
 | `로고/` | 로고 이미지와 생성 스크립트(Pillow) |
 
 ## 폰 앱 기능
 
-- 바이낸스 Demo API 키로 각자 접속 (키는 서버에 암호화 저장)
+- **바이낸스 Demo · OKX 모의거래 · Gate TestNet** API 키로 각자 접속 (키는 서버에 암호화 저장, OKX 는 Passphrase 도 필요)
 - 포지션 카드(OKX식), TP/SL(가격·% · 부분 수량), Close / Close all, PNL 공유 카드
 - 계좌 그래프(1D~1Y), Analysis(7D·30D·90D·All, 승률, 손익비, Trading calendar, 펀딩비)
 - 배율별 백테스트, 픽셀 트레이더 브리핑(에겐/테토 말투)
